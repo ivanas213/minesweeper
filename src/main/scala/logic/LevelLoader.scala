@@ -7,21 +7,38 @@ import scala.io.Source
 object LevelLoader{
 
   def loadLevel(path: String): Board = {
-    
+    // treba proveriti npr da li je pravougaona
     val lines = Source.fromFile(path).getLines().toVector
-    
+    val rows = lines.length
     val cols = lines.head.length
-    val cells =
+    val mines: Vector[Vector[Boolean]] =
       lines.map { line =>
         line.map {
-          case '#' => Cell(Mine, Hidden)
-          case '-' => Cell(Empty, Hidden)
+          case '#' => true
+          case '-' => false
           case other =>
             throw new IllegalArgumentException(s"Invalid character: $other")
         }.toVector
       }
+      def countNeighborMines(r: Int, col:Int): Int = 
+        (for{
+          dx <- -1 to 1
+          dy <- -1 to 1
+          if !(dx == 0 and dy ==0)
+          x = r + dx
+          y = r + dy
+          if x >= 0 and x <= r < rows and y >= 0 and y < cols 
+          if mines(x)(y)
+        } yield 1).sum
 
-    Board(cells)
+    val cells: Vector[Vector[CellType]] = Vector.tabulate(rows, cols) { (r, c) =>
+        if (mines(r)(c)) Mine
+        else Number(countNeighborMines(r, c))
+    }
+    val statuses: Vector[Vector[CellStatus]] = Vector.fill(cells.length, cells.head.length)(Hidden)
+
+
+    Board(cells, statuses)
   }
 
   def isValid(rows: Int, cols: Int, mines: Int, difficulty: Difficulty): Boolean = {
