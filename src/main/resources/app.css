@@ -1,0 +1,28 @@
+.app { -fx-background-color: #E6F0FF; }
+
+.title-bar {
+    -fx-background-color: #1E3A8A;
+    -fx-border-color: #0B1F5E;
+    -fx-border-width: 0 0 1 0;
+}
+.title-text {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.title-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-padding: 4 8 4 8;
+}
+.title-btn:hover { -fx-background-color: rgba(255,255,255,0.12); }
+
+.title-btn-close {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-padding: 4 10 4 10;
+}
+.title-btn-close:hover { -fx-background-color: #DC2626; }
