@@ -1,4 +1,4 @@
-package `enum`
+package utilities
 
 sealed trait DifficultyConstants{
   val minRows:Int
