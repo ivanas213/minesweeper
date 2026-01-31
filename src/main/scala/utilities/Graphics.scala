@@ -8,7 +8,7 @@ object Graphics {
     fitHeight = 14
     preserveRatio = true
   }
-  val Flag: ImageView = new ImageView(FlagImg) {
+  val Flag: ImageView = new ImageView(Images.FlagImg) {
     fitWidth = 12
     fitHeight = 12
     preserveRatio = true

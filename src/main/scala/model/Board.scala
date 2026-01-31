@@ -5,5 +5,5 @@ case class Board (
    cellsStatuses: Vector[Vector[CellStatus]]
  ){
    val rows: Int = cells.length
-   val cols: Int = if (cells.empty) 0 else cells.head.length
+   val cols: Int = if (cells.isEmpty) 0 else cells.head.length
 }

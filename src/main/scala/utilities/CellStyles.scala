@@ -1,6 +1,6 @@
 package utilities
 
-object Styles {
+object CellStyles {
   val HiddenCell = s"""
                               -fx-background-color: ${Colors.Empty};
                               -fx-border-color: #555555;
@@ -13,9 +13,9 @@ object Styles {
                                         -fx-border-color: #555555;
                                         -fx-border-width: 0.5;
                                       """
-  val Empty = s"""
+  def Empty(number: Int) = s"""
            -fx-background-color: ${Colors.RevealedEmpty};
-           -fx-text-fill: ${Colors.NumberColors.getOrElse(neighbors, Colors.RevealedEmpty)};
+           -fx-text-fill: ${Colors.NumberColors.getOrElse(number, Colors.RevealedEmpty)};
            -fx-font-weight: bold;
           """
 }

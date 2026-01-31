@@ -8,7 +8,7 @@ sealed trait DifficultyConstants{
   val minMineRatio:Int
   val maxMineRatio:Int
 }
-case object Beginner extends Difficulty{
+case object BeginnerConstants extends DifficultyConstants {
   override val minRows = 5
   override val maxRows = 9
   override val minColumns = 5
@@ -17,7 +17,7 @@ case object Beginner extends Difficulty{
   override val maxMineRatio = 15
 }
 
-case object Intermediate extends Difficulty {
+case object IntermediateConstants extends DifficultyConstants {
   override val minRows = 10
   override val maxRows = 15
   override val minColumns = 10
@@ -26,7 +26,7 @@ case object Intermediate extends Difficulty {
   override val maxMineRatio = 20
 }
 
-case object Expert extends Difficulty {
+case object ExpertConstants extends DifficultyConstants {
   override val minRows = 16
   override val maxRows = 30
   override val minColumns = 16
