@@ -21,7 +21,7 @@ class SceneController (stage: Stage){
     stage.scene = getSceneByRoot(view.root)
   }
 
-  def showGame(level: Level): Unit = {
+  private def showGame(level: Level): Unit = {
 
   }
 }
