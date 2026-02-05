@@ -24,7 +24,7 @@ class SelectDifficultyView(onSelect: Difficulty => Unit) {
     }
 
   private val icon = new ImageView(
-    Images.DifficultyImg
+    Images().DifficultyImg
   ) {
     fitWidth = 64
     fitHeight = 64

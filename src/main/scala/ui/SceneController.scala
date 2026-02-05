@@ -4,24 +4,17 @@ import logic.{Difficulty, Level}
 import scalafx.scene.{Parent, Scene}
 import scalafx.stage.Stage
 
-class SceneController (stage: Stage){
-  
-  private def showLevelSelection(difficulty: Difficulty): Unit = {
-    val view = new SelectLevelView(difficulty, showGame, showDifficultySelection)
-    stage.scene = getSceneByRoot(view.root)
-  }
+class SceneController(
+                       stage: Stage,
+                       onLevelSelected: Level => Unit
+                     ) {
 
-  private def getSceneByRoot(stageRoot: Parent): Scene =
-    new Scene {
-      root = stageRoot
-    }
-  
-  def showDifficultySelection(): Unit = {
-    val view = new SelectDifficultyView(showLevelSelection)
-    stage.scene = getSceneByRoot(view.root)
-  }
+  private def setScene(sceneRoot: Parent): Unit =
+    stage.scene = new Scene { this.root = sceneRoot }
 
-  private def showGame(level: Level): Unit = {
+  def showDifficultySelection(): Unit =
+    setScene(new SelectDifficultyView(showLevelSelection).root)
 
-  }
+  private def showLevelSelection(difficulty: Difficulty): Unit =
+    setScene(new SelectLevelView(difficulty, onLevelSelected, showDifficultySelection).root)
 }

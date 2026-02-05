@@ -6,12 +6,11 @@ import scalafx.geometry.Pos.Center
 import scalafx.scene.control.{Button, Label}
 import scalafx.scene.layout.{BorderPane, HBox}
 import scalafx.scene.text.Font
-import utilities.Graphics.HintView
-import utilities.Images.{HappySmileImg, SadSmileImg, VeryHappyImg}
+import utilities.{Graphics, Images}
 
-class TopBar(flagsLeft: Int, onHint: () => Unit, onRestart: () => Unit) {
+class TopBar(flagsLeft: Int, onHint: () => Unit) {
 
-  private val smileView = utilities.Graphics.SmileView
+  private val smileView = Graphics().SmileView
   private val flagsView = new Label(s"🚩 ${flagsLeft}") {
     font = Font.font(14)
   }
@@ -20,22 +19,22 @@ class TopBar(flagsLeft: Int, onHint: () => Unit, onRestart: () => Unit) {
     font = Font.font(14)
   }
   def showHappy(): Unit =
-    smileView.image = HappySmileImg
+    smileView.image = Images().HappySmileImg
 
   def showSad(): Unit =
-    smileView.image = SadSmileImg
+    smileView.image = Images().SadSmileImg
 
   def showVeryHappy(): Unit =
-    smileView.image = VeryHappyImg
+    smileView.image = Images().VeryHappyImg
 
   private val centerView: HBox = {
     val smileButton = new Button {
       graphic = smileView
       style = "-fx-background-color: transparent;"
-      onAction = _ => onRestart()
+      onAction = _ => ()
     }
     val hintButton = new Button {
-      graphic = HintView
+      graphic = Graphics().HintView
       style = "-fx-background-color: transparent;"
       onAction = _ => onHint()
     }
