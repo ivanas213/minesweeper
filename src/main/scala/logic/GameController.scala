@@ -1,16 +1,35 @@
 package logic
 
 import model.{Board, Flagged, Hidden, Lost, Mine, Playing, Revealed}
+import services.GameTimer
 import ui.{CellView, EmptyRevealedCellView, FlaggedCellView, HiddenCellView, MineCellView, MineToRevealCellView}
+import scala.compiletime.uninitialized
 
 class GameController(levelPath: String) {
 
   private var state: GameState = {
     val board: Board = LevelLoader.loadLevel(levelPath)
     val flags = board.countMines
-    GameState(board = board, flags = flags)
+    GameState(board = board, flags = flags, onEnd = () => timer.stop())
   }
 
+  private var onTimeChanged: Int => Unit = uninitialized
+  def resetTimer(): Unit = timer.reset()
+
+  def setOnTimeChanged(callback: Int => Unit): Unit =
+    onTimeChanged = callback
+
+  private val timer = new GameTimer ( seconds =>
+    state = state.copy(time = seconds)
+    if (onTimeChanged != null)
+      onTimeChanged(seconds)
+  )
+
+  private def startTimer(): Unit = timer.start()
+
+  startTimer()
+
+  private def stopTimer(): Unit = timer.stop()
   def getHintCoordinates: Option[(Int, Int)] = {
     if (state.status == Playing)
       val hint = state.board.getSafeCell
@@ -69,6 +88,7 @@ class GameController(levelPath: String) {
     if (state.status == Playing)
       state = state.revealCell(row, col)
       incrementClicks()
+    
   }
 
   def onRightClick(row: Int, col: Int): Unit = {

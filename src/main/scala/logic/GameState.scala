@@ -7,6 +7,8 @@ case class GameState (
                      board: Board,
                      status: GameStatus = Playing,
                      flags: Int,
+                     onEnd: () => Unit,
+                     time: Int = 0,
                      clicks: Int = 0,
                      totalHintsUsed: Int = 0,
                      probabilisticHintsUsed:Int = 0
@@ -21,6 +23,7 @@ case class GameState (
         cols.forall { c =>
           board.cellAt(r, c) match
             case Some(Mine) =>
+              onEnd()
               true 
             case Some(Number(_)) =>
               board.cellStatusAt(r, c).contains(Revealed)
@@ -72,6 +75,7 @@ case class GameState (
       case Some(cell) =>
         cell match
           case Mine =>
+            onEnd()
             val newBoard: Board = board.changeStatus(row, col)(_ => Revealed)
             copy(
               board = newBoard,

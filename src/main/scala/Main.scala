@@ -21,16 +21,25 @@ object Main extends JFXApp3  {
         flagsLeft = () => gameController.getState.flags,
         getHintCoordinates = () => gameController.getHintCoordinates,
         isEnded = () => gameController.isEnded,
-        isLost = () => gameController.isLost
+        isLost = () => gameController.isLost,
+        onNewGame = () => (),
+        onRestart = () => (),
+        onSaveGame = () => (),
+        onLoadSaved = () => (),
+        onLoadLevel = () => (),
+        onLoadMoves = () => (),
+        onShowResults = () => ()
       )
-
+      gameController.setOnTimeChanged(seconds =>
+        gameView.updateTime(seconds)
+      )
       stage.scene = new Scene {
         root = gameView.root
       }
     }
     val sceneController = new SceneController(stage, startGame)
     sceneController.showDifficultySelection()
-
+   
   }
 }
 
@@ -41,3 +50,10 @@ object Main extends JFXApp3  {
 // hint logika
 
 // da li da ogranicim broj zastavica
+
+// pracenje rezultata i logika za racunanje rezultata
+// validacija nivoa
+
+// da smajlic restartuje
+
+// videti za ovo sto velicina prelazi

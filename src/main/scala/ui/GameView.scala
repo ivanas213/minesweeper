@@ -1,6 +1,6 @@
 package ui
 
-import scalafx.scene.layout.VBox
+import scalafx.scene.layout.{BorderPane, VBox}
 import services.GameTimer
 import utilities.CellStyles
 
@@ -13,20 +13,20 @@ class GameView(
                 flagsLeft: () => Int,
                 getHintCoordinates: () => Option[(Int, Int)],
                 isEnded: () => Boolean,
-                isLost: () => Boolean
+                isLost: () => Boolean,
+                onNewGame: () => Unit,
+                onRestart: () => Unit,
+                onSaveGame: () => Unit,
+                onLoadSaved: () => Unit,
+                onLoadLevel: () => Unit,
+                onLoadMoves: () => Unit,
+                onShowResults: () => Unit
               ) {
   
-  private val timer = new GameTimer(time =>
-    topBar.setTime(time)
-  )
-
-  private def startTimer(): Unit = timer.start()
-  startTimer()
-  private def stopTimer(): Unit = timer.stop()
+  
   def onLeftClick(row: Int, col: Int): Unit = {
     onLeft(row, col)
     if (isEnded())
-      stopTimer()
       if (isLost())
         topBar.showSad()
       else
@@ -36,7 +36,8 @@ class GameView(
     onRight(row, col)
     topBar.setFlags(flagsLeft())
   }
-  def resetTimer(): Unit = timer.reset()
+  def updateTime(time: Int): Unit = topBar.setTime(time)
+  
   def onHint(): Unit = {
     val coordinates = getHintCoordinates()
     
@@ -49,8 +50,10 @@ class GameView(
   }
   private val boardView = new BoardView(rows, cols, onLeftClick, onRightClick, getCellView)
   private val topBar = new TopBar(flagsLeft(), onHint)
-  val root: VBox = new VBox{
-    spacing = 15
-    children = Seq(topBar.view, boardView.grid)
+  private val menu = new TopMenu(onNewGame, onRestart, onSaveGame, onLoadSaved, onLoadLevel, onLoadSaved, onShowResults)
+  val root: BorderPane = new BorderPane {
+    top = new VBox(menu.menuBar, topBar.view)
+    center = boardView.grid
   }
+
 }
