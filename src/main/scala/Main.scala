@@ -24,7 +24,7 @@ object Main extends JFXApp3  {
         isLost = () => gameController.isLost,
         onNewGame = () => (),
         onRestart = () => (),
-        onSaveGame = () => (),
+        onSaveGame = gameController.saveGame,
         onLoadSaved = () => (),
         onLoadLevel = () => (),
         onLoadMoves = () => (),
@@ -38,8 +38,8 @@ object Main extends JFXApp3  {
       }
     }
     val sceneController = new SceneController(stage, startGame)
-    sceneController.showDifficultySelection()
-   
+    sceneController.showStartGame()
+
   }
 }
 
@@ -57,3 +57,7 @@ object Main extends JFXApp3  {
 // da smajlic restartuje
 
 // videti za ovo sto velicina prelazi
+// videti za zatvaranje stage-a, back i tako to
+// videti za moje silne wrappere koji menjaju imena na cudan nacin
+// mozda neki shortcuts npr enter za potvrdu ctrl + s za save ili tako nesto
+// videti ono za () => sto svuda imam a vrv ne treba

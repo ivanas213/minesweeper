@@ -1,19 +1,19 @@
 package utilities
 
 object ButtonStyles {
-  val DifficultyButtonClassic = """
+  val ButtonClassic = """
           -fx-background-color: #1e88e5;
           -fx-text-fill: white;
           -fx-background-radius: 10;
           -fx-cursor: hand;
         """
-  val DifficultyButtonMouseEntered = """
+  val ButtonMouseEntered = """
             -fx-background-color: #1565c0;
             -fx-text-fill: white;
             -fx-background-radius: 10;
             -fx-cursor: hand;
           """
-  val DifficultyButtonMouseExited = """
+  val ButtonMouseExited = """
             -fx-background-color: #1e88e5;
             -fx-text-fill: white;
             -fx-background-radius: 10;

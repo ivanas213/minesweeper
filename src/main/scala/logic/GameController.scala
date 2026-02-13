@@ -12,7 +12,7 @@ class GameController(levelPath: String) {
     val flags = board.countMines
     GameState(board = board, flags = flags, onEnd = () => timer.stop())
   }
-
+  private val gameSaver = new GameSaver()
   private var onTimeChanged: Int => Unit = uninitialized
   def resetTimer(): Unit = timer.reset()
 
@@ -28,7 +28,7 @@ class GameController(levelPath: String) {
   private def startTimer(): Unit = timer.start()
 
   startTimer()
-
+  def saveGame(name:String): Unit = gameSaver.saveGame(name, state)
   private def stopTimer(): Unit = timer.stop()
   def getHintCoordinates: Option[(Int, Int)] = {
     if (state.status == Playing)
@@ -76,7 +76,7 @@ class GameController(levelPath: String) {
               case _ => MineToRevealCellView()
   }
   def getState: GameState = state
-
+  
   private def incrementClicks(): Unit = state = state.copy(clicks = state.clicks + 1)
   private def incrementFlags(): Unit = state = state.copy(flags = state.flags + 1)
   private def decrementFlags(): Unit = state = state.copy(flags = state.flags - 1)

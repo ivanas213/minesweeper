@@ -17,4 +17,8 @@ class SceneController(
 
   private def showLevelSelection(difficulty: Difficulty): Unit =
     setScene(new SelectLevelView(difficulty, onLevelSelected, showDifficultySelection).root)
+  
+  def showStartGame(): Unit =
+    setScene(new StartView(() => showDifficultySelection(), () => ()).root)
+  
 }

@@ -4,7 +4,6 @@ import logic.{Difficulty, Level}
 import scalafx.geometry.Pos
 import scalafx.scene.control.{Button, Label, ScrollPane}
 import scalafx.scene.layout.VBox
-import utilities.Colors
 
 import scala.util.Random
 
@@ -28,7 +27,6 @@ class SelectLevelView(
       onAction = _ => action
     }
 
-  // Lista dugmadi za nivoe
   private val levelsBox = new VBox {
     spacing = 10
     alignment = Pos.TopCenter
@@ -40,7 +38,6 @@ class SelectLevelView(
     }
   }
 
-  // Scroll kontejner
   private val scrollPane = new ScrollPane {
     content = levelsBox
     fitToWidth = true
@@ -63,7 +60,6 @@ class SelectLevelView(
 
     children = Seq(
 
-      // Naslov
       new Label("Изабери ниво") {
         style =
           s"""
@@ -73,7 +69,6 @@ class SelectLevelView(
            """
       },
 
-      // Težina
       new Label(difficulty.name) {
         style =
           """
@@ -82,15 +77,12 @@ class SelectLevelView(
           """
       },
 
-      // Random
-      primaryButton("🎲 Насумично изабран ниво") {
+      primaryButton("🎲 Насумично изабран ниво") { // TODO mozda bolje nesto prirodnije od ove kockice
         onSelect(difficulty.levels(Random.nextInt(difficulty.levels.length)))
       },
 
-      // Scroll lista nivoa
       scrollPane,
 
-      // Nazad
       new Button("Назад") {
         prefWidth = 140
         style =

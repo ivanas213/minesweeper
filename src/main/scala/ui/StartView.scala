@@ -1,33 +1,38 @@
 package ui
 
-import logic.{Beginner, Difficulty, Expert, Intermediate}
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.control.{Button, Label}
-import scalafx.scene.image.{Image, ImageView}
+import scalafx.scene.image.ImageView
 import scalafx.scene.layout.VBox
 import scalafx.scene.text.Font
 import utilities.{ButtonStyles, Images}
 
-class SelectDifficultyView(onSelect: Difficulty => Unit) {
+class StartView(
+                     onNewGame: () => Unit,
+                     onLoadGame: () => Unit
+                   ) {
 
-  private def difficultyButton(text: String, diff: Difficulty): Button =
+  private def menuButton(text: String, action: () => Unit): Button =
     new Button(text) {
       minWidth = 240
-      minHeight = 45
-      font = Font.font(15)
+      minHeight = 50
+      font = Font.font(16)
       style = ButtonStyles.ButtonClassic
+
       onMouseEntered = _ =>
         style = ButtonStyles.ButtonMouseEntered
+
       onMouseExited = _ =>
         style = ButtonStyles.ButtonMouseExited
-      onAction = _ => onSelect(diff)
+
+      onAction = _ => action()
     }
 
   private val icon = new ImageView(
-    Images.DifficultyImg
+    Images.StartGame
   ) {
-    fitWidth = 64
-    fitHeight = 64
+    fitWidth = 72
+    fitHeight = 72
     preserveRatio = true
   }
 
@@ -36,27 +41,24 @@ class SelectDifficultyView(onSelect: Difficulty => Unit) {
 
     children = Seq(
       new VBox {
-        spacing = 25
-        padding = Insets(35)
+        spacing = 30
+        padding = Insets(40)
         alignment = Pos.Center
-
-
 
         children = Seq(
           icon,
 
-          new Label("Изаберите тежину") {
-            font = Font.font(22)
+          new Label("МИНЕ") { // TODO smisliti lepo ime
+            font = Font.font(26)
             style = "-fx-text-fill: #0d47a1;"
           },
 
           new VBox {
-            spacing = 15
+            spacing = 20
             alignment = Pos.Center
             children = Seq(
-              difficultyButton("Почетни", Beginner),
-              difficultyButton("Средњи", Intermediate),
-              difficultyButton("Напредни", Expert)
+              menuButton("Нова игра", onNewGame),
+              menuButton("Настави игру", onLoadGame)
             )
           }
         )
@@ -64,3 +66,4 @@ class SelectDifficultyView(onSelect: Difficulty => Unit) {
     )
   }
 }
+

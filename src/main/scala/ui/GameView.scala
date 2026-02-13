@@ -16,7 +16,7 @@ class GameView(
                 isLost: () => Boolean,
                 onNewGame: () => Unit,
                 onRestart: () => Unit,
-                onSaveGame: () => Unit,
+                onSaveGame: String => Unit,
                 onLoadSaved: () => Unit,
                 onLoadLevel: () => Unit,
                 onLoadMoves: () => Unit,
@@ -50,7 +50,13 @@ class GameView(
   }
   private val boardView = new BoardView(rows, cols, onLeftClick, onRightClick, getCellView)
   private val topBar = new TopBar(flagsLeft(), onHint)
-  private val menu = new TopMenu(onNewGame, onRestart, onSaveGame, onLoadSaved, onLoadLevel, onLoadSaved, onShowResults)
+  private def onSave(): Unit ={
+    val dialog = new SaveGameDialog(name =>
+      onSaveGame(name)
+    )
+    dialog.show()
+  }
+  private val menu = new TopMenu(onNewGame, onRestart, onSave, onLoadSaved, onLoadLevel, onLoadSaved, onShowResults)
   val root: BorderPane = new BorderPane {
     top = new VBox(menu.menuBar, topBar.view)
     center = boardView.grid
