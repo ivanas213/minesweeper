@@ -13,6 +13,7 @@ class CellStyles {
                                         -fx-border-color: #555555;
                                         -fx-border-width: 0.5;
                                       """
+ 
   def EmptyRevealed(number: Int) = s"""
            -fx-background-color: ${Colors.RevealedEmpty};
            -fx-text-fill: ${Colors.NumberColors.getOrElse(number, Colors.RevealedEmpty)};

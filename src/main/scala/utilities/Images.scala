@@ -2,7 +2,7 @@ package utilities
 
 import scalafx.scene.image.Image
 
-class Images {
+object Images {
 
   private def load(path: String): Image =
     new Image(getClass.getResourceAsStream(path))

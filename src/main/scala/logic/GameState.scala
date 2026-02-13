@@ -2,11 +2,14 @@ package logic
 
 import model.{Board, GameStatus, Hidden, Lost, Mine, Number, Playing, Revealed, Won}
 
+
 case class GameState (
                      board: Board,
                      status: GameStatus = Playing,
                      flags: Int,
-                     clicks: Int = 0
+                     clicks: Int = 0,
+                     totalHintsUsed: Int = 0,
+                     probabilisticHintsUsed:Int = 0
                      ){
   
   private def checkWin(board: Board): GameStatus =
@@ -27,16 +30,7 @@ case class GameState (
 
     if allNonMinesRevealed then Won else Playing
 
-  def neighbors(row: Int, col: Int): Seq[(Int, Int)] =
-    for {
-      dx <- -1 to 1
-      dy <- -1 to 1
-      if !(dx == 0 && dy == 0)
-      r = row + dx
-      c = col + dy
-      if r >= 0 && r < board.rows
-      if c >= 0 && c < board.cols
-    } yield (r, c)
+  
 
   private def revealZeroNeighbors(
                               board: Board,
@@ -52,7 +46,7 @@ case class GameState (
         val newBoard =
           board.changeStatus(row, col)(_ => Revealed)
 
-        neighbors(row, col).foldLeft(newBoard) {
+        board.neighbors(row, col).foldLeft(newBoard) {
           case (b, (r, c)) =>
             revealZeroNeighbors(b, r, c, visited + ((row, col)))
         }
@@ -101,4 +95,18 @@ case class GameState (
     
   }
 
+  def incrementProbabilisticHints: GameState = {
+    copy (probabilisticHintsUsed = probabilisticHintsUsed + 1)
+  }
+
+  def totalProbabilisticHints: GameState = {
+    copy (totalHintsUsed = totalHintsUsed + 1)
+  }
+  
+
+  
+
+  
+
+ 
 }

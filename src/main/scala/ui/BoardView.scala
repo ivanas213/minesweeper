@@ -51,13 +51,14 @@ class BoardView(
     btn.graphic = cellView.graphic.orNull
   }
 
-  private def refreshUI(): Unit = {
-
+  def refreshUI(): Unit = {
+    
     for {
       row <- 0 until rows
       col <- 0 until cols
     } {
       updateButton(row, col)
     }
+    
   }
 }

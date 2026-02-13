@@ -1,6 +1,6 @@
 package logic
 
-import model.{Board, Flagged, Hidden, Mine, Playing, Revealed}
+import model.{Board, Flagged, Hidden, Lost, Mine, Playing, Revealed}
 import ui.{CellView, EmptyRevealedCellView, FlaggedCellView, HiddenCellView, MineCellView, MineToRevealCellView}
 
 class GameController(levelPath: String) {
@@ -11,6 +11,26 @@ class GameController(levelPath: String) {
     GameState(board = board, flags = flags)
   }
 
+  def getHintCoordinates: Option[(Int, Int)] = {
+    if (state.status == Playing)
+      val hint = state.board.getSafeCell
+      hint match
+        case Some(r: Int, c: Int) =>
+          incrementTotalHintsUsed()
+          Some(r, c)
+        case None =>
+          val random = state.board.getMaybeSafeCell
+          random match
+            case Some(r: Int, c: Int) =>
+              incrementProbablisticHintsUsed()
+              Some(r, c)
+            case None =>
+              None
+    else 
+      None
+  }
+  def isLost:Boolean = state.status == Lost
+  def isEnded: Boolean = state.status != Playing
   def getCellView(row: Int, col: Int): CellView = {
     val cell = state.board.cellAt(row, col)
     val cellStatus = state.board.cellStatusAt(row, col)
@@ -36,13 +56,13 @@ class GameController(levelPath: String) {
               case Some(model.Number(value)) => HiddenCellView()
               case _ => MineToRevealCellView()
   }
-
   def getState: GameState = state
 
   private def incrementClicks(): Unit = state = state.copy(clicks = state.clicks + 1)
   private def incrementFlags(): Unit = state = state.copy(flags = state.flags + 1)
   private def decrementFlags(): Unit = state = state.copy(flags = state.flags - 1)
-
+  private def incrementProbablisticHintsUsed(): Unit = state = state.copy(probabilisticHintsUsed = state.probabilisticHintsUsed + 1)
+  private def incrementTotalHintsUsed(): Unit = state = state.copy(totalHintsUsed = state.totalHintsUsed + 1)
   def rows: Int = state.board.rows
   def cols: Int = state.board.cols
   def onLeftClick(row: Int, col: Int): Unit = {
@@ -53,7 +73,7 @@ class GameController(levelPath: String) {
 
   def onRightClick(row: Int, col: Int): Unit = {
     if (state.status == Playing)
-      if (state.board.cellStatusAt(row, col) == Flagged) then
+      if !state.board.cellStatusAt(row, col).contains(Flagged) then
         decrementFlags()
       else
         incrementFlags()
@@ -68,4 +88,6 @@ class GameController(levelPath: String) {
   def onHint(): Unit = {
 
   }
+  
+  
 }

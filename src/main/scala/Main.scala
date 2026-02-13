@@ -18,8 +18,10 @@ object Main extends JFXApp3  {
         onLeft = gameController.onLeftClick,
         onRight = gameController.onRightClick,
         getCellView = gameController.getCellView,
-        flagsLeft = gameController.getState.flags,
-        onHint = () => ()
+        flagsLeft = () => gameController.getState.flags,
+        getHintCoordinates = () => gameController.getHintCoordinates,
+        isEnded = () => gameController.isEnded,
+        isLost = () => gameController.isLost
       )
 
       stage.scene = new Scene {
@@ -32,3 +34,10 @@ object Main extends JFXApp3  {
   }
 }
 
+// videti to sto su neki nivoi preveliki
+// da li moraju da se potrose zastavice
+
+// restart dugme
+// hint logika
+
+// da li da ogranicim broj zastavica
