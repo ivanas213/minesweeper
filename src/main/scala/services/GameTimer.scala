@@ -31,6 +31,11 @@ class GameTimer(onTick: Int => Unit) {
     seconds = 0
     onTick(seconds)
   }
+  def resetTo(newSeconds: Int): Unit = {
+    stop()
+    seconds = newSeconds
+    onTick(seconds)
+  }
 
   def current: Int = seconds
 }

@@ -6,19 +6,23 @@ import scalafx.stage.Stage
 
 class SceneController(
                        stage: Stage,
-                       onLevelSelected: Level => Unit
+                       onLevelSelected: Level => Unit,
+                       getSavedGames: () => Seq[String],
+                       getLevels: Difficulty => Vector[Level],
+                       onGameSelected: String => Unit
                      ) {
 
   private def setScene(sceneRoot: Parent): Unit =
     stage.scene = new Scene { this.root = sceneRoot }
 
-  def showDifficultySelection(): Unit =
-    setScene(new SelectDifficultyView(showLevelSelection).root)
+  private def showDifficultySelection(): Unit =
+    setScene(new SelectDifficultyView(showLevelSelection, getLevels).root)
 
-  private def showLevelSelection(difficulty: Difficulty): Unit =
-    setScene(new SelectLevelView(difficulty, onLevelSelected, showDifficultySelection).root)
-  
+  private def showLevelSelection(difficulty: String, levels:Vector[Level]): Unit =
+    setScene(new SelectLevelView(difficulty, levels, onLevelSelected, showDifficultySelection).root)
+  private def showSavedLevels(): Unit =
+    setScene(new SelectSavedGameView(onGameSelected, showStartGame, getSavedGames).root)
   def showStartGame(): Unit =
-    setScene(new StartView(() => showDifficultySelection(), () => ()).root)
+    setScene(new StartView(() => showDifficultySelection(), showSavedLevels).root)
   
 }

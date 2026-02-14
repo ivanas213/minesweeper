@@ -8,7 +8,8 @@ import scalafx.scene.layout.VBox
 import scala.util.Random
 
 class SelectLevelView(
-                       difficulty: Difficulty,
+                       difficultyName: String,
+                       levels: Vector[Level],
                        onSelect: Level => Unit,
                        onBack: () => Unit
                      ) {
@@ -31,7 +32,7 @@ class SelectLevelView(
     spacing = 10
     alignment = Pos.TopCenter
 
-    children = difficulty.levels.map { level =>
+    children = levels.map { level =>
       primaryButton(level.name) {
         onSelect(level)
       }
@@ -69,7 +70,7 @@ class SelectLevelView(
            """
       },
 
-      new Label(difficulty.name) {
+      new Label(difficultyName) {
         style =
           """
             -fx-font-size: 14px;
@@ -78,7 +79,7 @@ class SelectLevelView(
       },
 
       primaryButton("🎲 Насумично изабран ниво") { // TODO mozda bolje nesto prirodnije od ove kockice
-        onSelect(difficulty.levels(Random.nextInt(difficulty.levels.length)))
+        onSelect(levels(Random.nextInt(levels.length)))
       },
 
       scrollPane,

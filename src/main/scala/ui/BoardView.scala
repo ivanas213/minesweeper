@@ -13,7 +13,6 @@ class BoardView(
   val grid: GridPane = new GridPane
   val buttons: Array[Array[ButtonCell]] =
     Array.ofDim(rows, cols)
-    
   private def onLeftClick(row: Int, col: Int): Unit = {
     onLeft(row, col)
     refreshUI()
@@ -28,6 +27,7 @@ class BoardView(
     buttons(r)(c) = btn
     grid.add(btn, c, r)
   }
+  refreshUI()
 
   def markHint(row: Int, col: Int): Unit = {
     buttons(row)(col).style = new CellStyles().Hint

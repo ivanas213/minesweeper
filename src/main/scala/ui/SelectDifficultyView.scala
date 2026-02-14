@@ -1,6 +1,6 @@
 package ui
 
-import logic.{Beginner, Difficulty, Expert, Intermediate}
+import logic.{Beginner, Difficulty, Expert, Intermediate, Level}
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.control.{Button, Label}
 import scalafx.scene.image.{Image, ImageView}
@@ -8,7 +8,7 @@ import scalafx.scene.layout.VBox
 import scalafx.scene.text.Font
 import utilities.{ButtonStyles, Images}
 
-class SelectDifficultyView(onSelect: Difficulty => Unit) {
+class SelectDifficultyView(onSelect: (difficulty: String, levels:Vector[Level]) => Unit, levels:  Difficulty => Vector[Level]) {
 
   private def difficultyButton(text: String, diff: Difficulty): Button =
     new Button(text) {
@@ -20,7 +20,7 @@ class SelectDifficultyView(onSelect: Difficulty => Unit) {
         style = ButtonStyles.ButtonMouseEntered
       onMouseExited = _ =>
         style = ButtonStyles.ButtonMouseExited
-      onAction = _ => onSelect(diff)
+      onAction = _ => onSelect(diff.name, levels(diff))
     }
 
   private val icon = new ImageView(

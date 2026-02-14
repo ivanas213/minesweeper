@@ -7,7 +7,7 @@ case class GameState (
                      board: Board,
                      status: GameStatus = Playing,
                      flags: Int,
-                     onEnd: () => Unit,
+                     onEnd: () => Unit = () => (),
                      time: Int = 0,
                      clicks: Int = 0,
                      totalHintsUsed: Int = 0,

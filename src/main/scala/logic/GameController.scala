@@ -5,14 +5,19 @@ import services.GameTimer
 import ui.{CellView, EmptyRevealedCellView, FlaggedCellView, HiddenCellView, MineCellView, MineToRevealCellView}
 import scala.compiletime.uninitialized
 
-class GameController(levelPath: String) {
+class GameController(levelPath: Option[String] = None, gameState: Option[GameState] = None) {
 
-  private var state: GameState = {
-    val board: Board = LevelLoader.loadLevel(levelPath)
-    val flags = board.countMines
-    GameState(board = board, flags = flags, onEnd = () => timer.stop())
+  private var state: GameState = levelPath match {
+    case Some(path) =>
+      val board = LevelLoader.loadLevel(path)
+      val flags = board.countMines
+      GameState(board = board, flags = flags)
+
+    case None =>
+      gameState.get
   }
-  private val gameSaver = new GameSaver()
+
+  private val gameSaverLoader = GameSaverLoader
   private var onTimeChanged: Int => Unit = uninitialized
   def resetTimer(): Unit = timer.reset()
 
@@ -25,10 +30,10 @@ class GameController(levelPath: String) {
       onTimeChanged(seconds)
   )
 
-  private def startTimer(): Unit = timer.start()
-
-  startTimer()
-  def saveGame(name:String): Unit = gameSaver.saveGame(name, state)
+  timer.resetTo(state.time)
+  timer.start()
+  state = state.copy(onEnd = () => timer.stop())
+  def saveGame(name:String): Unit = gameSaverLoader.saveGame(name, state)
   private def stopTimer(): Unit = timer.stop()
   def getHintCoordinates: Option[(Int, Int)] = {
     if (state.status == Playing)
