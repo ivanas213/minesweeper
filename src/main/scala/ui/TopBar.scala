@@ -7,7 +7,7 @@ import scalafx.scene.layout.{BorderPane, HBox}
 import scalafx.scene.text.Font
 import utilities.{Graphics, Images}
 
-class TopBar(flagsLeft: Int, onHint: () => Unit) {
+class TopBar(flagsLeft: Int, onHint: () => Unit, onRestart: () => Unit) {
 
   private val smileView = Graphics.SmileView
   private val flagsView = new Label(s"🚩 ${flagsLeft}") {
@@ -30,7 +30,7 @@ class TopBar(flagsLeft: Int, onHint: () => Unit) {
     val smileButton = new Button {
       graphic = smileView
       style = "-fx-background-color: transparent;"
-      onAction = _ => ()
+      onAction = _ => onRestart()
     }
     val hintButton = new Button {
       graphic = Graphics.HintView

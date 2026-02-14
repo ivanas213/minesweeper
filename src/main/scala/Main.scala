@@ -23,7 +23,7 @@ object Main extends JFXApp3  {
         isEnded = () => gameController.isEnded,
         isLost = () => gameController.isLost,
         onNewGame = () => (),
-        onRestart = () => (),
+        onRestart = () => gameController.restart(),
         onSaveGame = gameController.saveGame,
         onLoadSaved = () => (),
         onLoadLevel = () => (),
@@ -39,7 +39,7 @@ object Main extends JFXApp3  {
     }
 
     def loadGame(name:String): Unit = {
-      val gameController = new GameController(gameState = Some(GameSaverLoader.loadGame(name)) )
+      val gameController = new GameController(initialGameState = Some(GameSaverLoader.loadGame(name)) )
 
       val gameView = new GameView(
         rows = gameController.rows,
@@ -52,7 +52,7 @@ object Main extends JFXApp3  {
         isEnded = () => gameController.isEnded,
         isLost = () => gameController.isLost,
         onNewGame = () => (),
-        onRestart = () => (),
+        onRestart = () => gameController.restart(),
         onSaveGame = gameController.saveGame,
         onLoadSaved = () => (),
         onLoadLevel = () => (),
@@ -104,3 +104,7 @@ object Main extends JFXApp3  {
 // videti da li negde gde je funkcija moze samo rezultat funkcije
 // zavrsiti sve stavke iz menija i obrisati visak ako ga ima
 // videti za ovo dirketno pisanje umesto u konstruktor
+// sve sto se ne koristi sa strane da bude private znaci proci kroz ceo kod
+// popuniti sve prazne metode iz gameview konstruktora
+// isto i za dipliciran kod
+// da mi se levi klik u ui svuda na isti nacin radi

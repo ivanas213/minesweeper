@@ -5,7 +5,7 @@ import services.GameTimer
 import ui.{CellView, EmptyRevealedCellView, FlaggedCellView, HiddenCellView, MineCellView, MineToRevealCellView}
 import scala.compiletime.uninitialized
 
-class GameController(levelPath: Option[String] = None, gameState: Option[GameState] = None) {
+class GameController(levelPath: Option[String] = None, initialGameState: Option[GameState] = None) {
 
   private var state: GameState = levelPath match {
     case Some(path) =>
@@ -14,13 +14,24 @@ class GameController(levelPath: Option[String] = None, gameState: Option[GameSta
       GameState(board = board, flags = flags)
 
     case None =>
-      gameState.get
+      initialGameState.get
   }
 
   private val gameSaverLoader = GameSaverLoader
   private var onTimeChanged: Int => Unit = uninitialized
-  def resetTimer(): Unit = timer.reset()
-
+  private def resetTimer(): Unit = timer.reset()
+  def restart(): Unit = {
+    state = levelPath match {
+      case Some(path) =>
+        val board = LevelLoader.loadLevel(path) // TODO ovo bi moglo i malo bolje sig bez da se ucitava i ovde i tamo
+        val flags = board.countMines
+        resetTimer()
+        timer.start() // TODO mozda izvuci ipak kao posebnu metodu
+        GameState(board = board, flags = flags, onEnd = () => timer.stop())
+      case None =>
+        initialGameState.get
+    }
+  }
   def setOnTimeChanged(callback: Int => Unit): Unit =
     onTimeChanged = callback
 
@@ -106,13 +117,8 @@ class GameController(levelPath: Option[String] = None, gameState: Option[GameSta
       state = state.toggleFlag(row, col)
   }
 
-  def onRestart(): Unit = {
+  
 
-  }
-
-  def onHint(): Unit = {
-
-  }
   
   
 }
