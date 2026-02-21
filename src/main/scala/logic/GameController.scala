@@ -1,8 +1,10 @@
 package logic
 
-import model.{Board, Flagged, Hidden, Lost, Mine, Playing, Revealed}
+import model.{Board, Flagged, Hidden, Lost, Mine, MoveType, Playing, Revealed}
 import services.GameTimer
 import ui.{CellView, EmptyRevealedCellView, FlaggedCellView, HiddenCellView, MineCellView, MineToRevealCellView}
+
+import java.io.File
 import scala.compiletime.uninitialized
 
 class GameController(levelPath: Option[String] = None, initialGameState: Option[GameState] = None) {
@@ -20,18 +22,35 @@ class GameController(levelPath: Option[String] = None, initialGameState: Option[
   private val gameSaverLoader = GameSaverLoader
   private var onTimeChanged: Int => Unit = uninitialized
   private def resetTimer(): Unit = timer.reset()
+  def getTime: Int = state.time
+  def getClicks: Int = state.clicks
+  def getScore: Int = state.getScore
+  def getDifficulty: Difficulty = state.board.difficulty
   def restart(): Unit = {
+    resetTimer()
+    timer.start()
     state = levelPath match {
+      // TODO mozda izvuci ipak kao posebnu metodu
       case Some(path) =>
         val board = LevelLoader.loadLevel(path) // TODO ovo bi moglo i malo bolje sig bez da se ucitava i ovde i tamo
         val flags = board.countMines
-        resetTimer()
-        timer.start() // TODO mozda izvuci ipak kao posebnu metodu
+        
         GameState(board = board, flags = flags, onEnd = () => timer.stop())
       case None =>
         initialGameState.get
     }
   }
+
+  def loadMoves(file: File): Unit = {
+    val moves = MoveLoader.loadMoves(file)
+    for (move <- moves){
+      if (move.moveType == MoveType.Left) 
+        onLeftClick(move.row, move.col)
+      else
+        onRightClick(move.row, move.col)
+    }
+  }
+
   def setOnTimeChanged(callback: Int => Unit): Unit =
     onTimeChanged = callback
 

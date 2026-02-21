@@ -1,16 +1,25 @@
 package model
 
+import logic.Difficulty
+
 import scala.util.Random
 
 case class Board (
    cells: Vector[Vector[Cell]],
-   cellsStatuses: Vector[Vector[CellStatus]]
+   cellsStatuses: Vector[Vector[CellStatus]],
+   difficulty: Difficulty
  ){
   val rows: Int = cells.length
   val cols: Int = if (cells.isEmpty) 0 else cells.head.length
   
   def countMines: Int = cells.flatten.count(cell => cell == Mine)
 
+  def countNonZeroNumbers: Int =
+    cells.flatten.count {
+      case Number(value) if value > 0 => true
+      case _ => false
+    }
+    
   def cellAt(row: Int, col: Int): Option[Cell] = {
     if (row >= 0 && row < rows && col >= 0 && col < cols)
       Some(cells(row)(col))

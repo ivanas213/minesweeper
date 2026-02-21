@@ -43,19 +43,27 @@ object GameSaverLoader {
     val file = new File(s"saved/$name.json")
 
     val writer = new PrintWriter(file)
-
+    val difficulty = gameState.board.difficulty
+    val difficultyString =
+      difficulty match
+        case Beginner => "B"
+        case Intermediate => "I"
+        case Expert => "E"
+        case _ => throw new Exception("Unknown difficulty")
+        
     val json =
       s"""
          |{
          |  "rows": ${gameState.board.rows},
-         |  "cols": ${gameState.board.rows},
+         |  "cols": ${gameState.board.cols},
          |  "elapsedTime": ${gameState.time},
          |  "flagsLeft": ${gameState.flags},
          |  "clicks" : ${gameState.clicks},
          |  "totalHints":${gameState.totalHintsUsed},
          |  "probHints": ${gameState.probabilisticHintsUsed},
          |  "boardCells": "${serializeBoardCells(gameState.board).replace("\n", "\\n")}",
-         |  "boardStatuses": "${serializeBoardStatuses(gameState.board).replace("\n", "\\n")}"
+         |  "boardStatuses": "${serializeBoardStatuses(gameState.board).replace("\n", "\\n")}",
+         |  "difficulty": "$difficultyString"
          |}
          |""".stripMargin
 
@@ -63,7 +71,6 @@ object GameSaverLoader {
     writer.close()
   }
 
-  import java.io.File
 
   def getSavedGamesNames: Seq[String] = {
     val dir = new File("saved")
@@ -96,6 +103,11 @@ object GameSaverLoader {
         case Some(m) => m.group(1).replace("\\n", "\n")
         case None => throw new Exception(s"Missing field")
 
+    def extractDifficulty(pattern: String): String =
+      pattern.r.findFirstMatchIn(content) match
+        case Some(m) => m.group(1)
+        case None => throw new Exception("Missing difficulty")
+
     val rows = extractInt("\"rows\"\\s*:\\s*(\\d+)")
     val cols = extractInt("\"cols\"\\s*:\\s*(\\d+)")
 
@@ -110,6 +122,9 @@ object GameSaverLoader {
 
     val boardStatusesRaw =
       extractString("\"boardStatuses\"\\s*:\\s*\"([^\"]*)\"")
+      
+    val difficultyRaw =
+      extractDifficulty("\"difficulty\"\\s*:\\s*\"([BIE])\"")
 
     val cellLines = boardCellsRaw.split("\n")
     val statusLines = boardStatusesRaw.split("\n")
@@ -132,8 +147,14 @@ object GameSaverLoader {
           case _ => throw new Exception("Invalid status")
         }
       }
+    val difficulty =
+      difficultyRaw match
+        case "B" => Beginner
+        case "I" => Intermediate
+        case "E" => Expert
+        case _ => throw new Exception("Invalid difficulty")
 
-    val board = Board(cells, statuses)
+    val board = Board(cells, statuses, difficulty)
 
     GameState(
       board = board,

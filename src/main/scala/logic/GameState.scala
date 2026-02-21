@@ -1,6 +1,8 @@
 package logic
 
 import model.{Board, GameStatus, Hidden, Lost, Mine, Number, Playing, Revealed, Won}
+import utilities.ScoreUtilities
+import utilities.ScoreUtilities.{ClickPenalty, MineRatioMultiplier, ProbabilisticHintPenalty, SecondPenalty, TotalHintPenalty}
 
 
 case class GameState (
@@ -105,6 +107,16 @@ case class GameState (
 
   def totalProbabilisticHints: GameState = {
     copy (totalHintsUsed = totalHintsUsed + 1)
+  }
+  def getScore: Int = {
+    val totalCells = board.rows * board.cols
+    val difficultyMultiplier = board.difficulty match
+      case Beginner => ScoreUtilities.BeginnerMultiplier // TODO definitivno bi bilo bolje da imam niz u Score utilities a ne ovako tako da popraviti to 
+      case Intermediate => ScoreUtilities.IntermediateMultiplier
+      case Expert => ScoreUtilities.ExpertMultiplier
+      case _ => throw Exception("Unknown difficulty")
+    val score = board.rows * board.cols * (1 +  board.countMines.toDouble / totalCells * MineRatioMultiplier) * (1 + board.countNonZeroNumbers.toDouble / totalCells) * difficultyMultiplier - clicks * ClickPenalty  - probabilisticHintsUsed * ProbabilisticHintPenalty  - totalHintsUsed * TotalHintPenalty + time * SecondPenalty
+    score.toInt
   }
   
 

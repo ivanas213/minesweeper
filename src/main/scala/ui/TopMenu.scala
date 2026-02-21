@@ -1,6 +1,10 @@
 package ui
 
+import logic.Difficulty
 import scalafx.scene.control.{Menu, MenuBar, MenuItem, SeparatorMenuItem}
+import scalafx.stage.{FileChooser, Stage}
+
+import java.io.File
 
 class TopMenu(
              onNewGame: () => Unit,
@@ -9,8 +13,10 @@ class TopMenu(
              onLoadSaved: () => Unit,
              onLoadLevel: () => Unit,
              onLoadMoves: () => Unit,
-             onShowResults: () => Unit
+             getDifficulty: () => Difficulty,
+             loadResults: logic.Difficulty => Seq[model.Score]
              ) {
+
   
   val menuBar: MenuBar = new MenuBar {
 
@@ -44,7 +50,9 @@ class TopMenu(
             onAction = _ => onLoadLevel()
           },
           new MenuItem("Одиграј секвенцу потеза") {
-            onAction = _ => onLoadMoves()
+            onAction = _ => {
+              onLoadMoves()
+            }
           }
         )
       },
@@ -52,7 +60,9 @@ class TopMenu(
       new Menu("Резултати") {
         items = List(
           new MenuItem("Најбољи резултати") {
-            onAction = _ => onShowResults()
+            onAction = _ => 
+              val dialog = new ShowResultsDialog(getDifficulty(), loadResults)
+              dialog.show()
           }
         )
       }

@@ -1,8 +1,13 @@
 package ui
 
+import javafx.stage.Window
+import logic.Difficulty
+import model.Score
 import scalafx.scene.layout.{BorderPane, VBox}
-import services.GameTimer
+import scalafx.stage.{FileChooser, Stage}
 import utilities.CellStyles
+
+import java.io.File
 
 class GameView(
                 rows: Int,
@@ -19,11 +24,25 @@ class GameView(
                 onSaveGame: String => Unit,
                 onLoadSaved: () => Unit,
                 onLoadLevel: () => Unit,
-                onLoadMoves: () => Unit,
-                onShowResults: () => Unit
+                onLoadMoves: File => Unit,
+                onShowResults: () => Unit,
+                getScore: () => Int,
+                getTime: () => Int,
+                getClicks: () => Int,
+                getDifficulty: () => Difficulty,
+                onSaveResult: (Difficulty, String, Int) => Unit,
+                loadResults: Difficulty => Seq[Score]
               ) {
-  
-  
+
+  def chooseFile(window: Window): Option[File] = {
+    val fileChooser = new FileChooser {
+      title = "Изаберите фајл са потезима"
+      extensionFilters.add(
+        new FileChooser.ExtensionFilter("Text files", "*.txt")
+      )
+    }
+    Option(fileChooser.showOpenDialog(window))
+  }
   def onLeftClick(row: Int, col: Int): Unit = {
     onLeft(row, col)
     if (isEnded())
@@ -31,13 +50,19 @@ class GameView(
         topBar.showSad()
       else
         topBar.showVeryHappy()
+        val dialog = new SaveResultDialog(getScore(), getTime(), getClicks(), getDifficulty(), onSaveResult)
+        dialog.show()
   }
   def onRightClick(row: Int, col: Int): Unit ={ 
     onRight(row, col)
     topBar.setFlags(flagsLeft())
   }
   def updateTime(time: Int): Unit = topBar.setTime(time)
-  
+  def onLoadMovesWithDialog(): Unit = {
+    val file = chooseFile(root.scene().getWindow)
+    onLoadMoves(file.get)
+    boardView.refreshUI()
+  }
   def onHint(): Unit = {
     val coordinates = getHintCoordinates()
     
@@ -45,6 +70,7 @@ class GameView(
       case Some(row, col) =>
         boardView.refreshUI()
         boardView.buttons(row)(col).style = CellStyles().Hint
+          
           
       case None => 
   }
@@ -62,7 +88,7 @@ class GameView(
     topBar.setFlags(flagsLeft())
     topBar.showHappy()
   }
-  private val menu = new TopMenu(onNewGame, onRestartAll, onSave, onLoadSaved, onLoadLevel, onLoadSaved, onShowResults)
+  private val menu = new TopMenu(onNewGame, onRestartAll, onSave, onLoadSaved, onLoadLevel, onLoadMovesWithDialog, getDifficulty, loadResults)
   val root: BorderPane = new BorderPane {
     top = new VBox(menu.menuBar, topBar.view)
     center = boardView.grid
