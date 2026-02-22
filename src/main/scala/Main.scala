@@ -1,15 +1,16 @@
-import logic.{Difficulty, Expert, GameController, ScoreSaverLoader, GameSaverLoader, Level}
+import logic.{Difficulty, Expert, GameController, GameSaverLoader, LevelController, LevelParameters, ScoreSaverLoader}
 import scalafx.application.JFXApp3
 import scalafx.application.JFXApp3.PrimaryStage
 import scalafx.scene.Scene
-import ui.{GameView, SceneController}
+import ui.SceneController
+import ui.view.{GameView, LevelView}
 
 
 object Main extends JFXApp3  {
   override def start(): Unit = {
     val stage = new PrimaryStage
 
-    def startGame(level: Level): Unit = {
+    def startGame(level: LevelParameters): Unit = {
       val gameController = new GameController(levelPath = Some(level.path))
 
       val gameView = new GameView(
@@ -44,6 +45,33 @@ object Main extends JFXApp3  {
       }
     }
 
+    def startEditingLevel(level: LevelParameters): Unit = {
+      val levelController = new LevelController(level.path)
+
+      val levelView = new LevelView(
+        onLeft = levelController.toggleCell,
+        onAddRowFirst = () => levelController.addEmptyRowFirst(),
+        onAddRowLast = () => levelController.addEmptyRowLast(),
+        onAddColFirst = () => levelController.addEmptyColumnFirst(),
+        onAddColLast = () => levelController.addEmptyColumnLast(),
+        onRemoveRowFirst = () => levelController.removeFirstRow(),
+        onRemoveRowLast = () => levelController.removeLastRow(),
+        onRemoveColFirst = () => levelController.removeFirstColumn(),
+        onRemoveColLast = () => levelController.removeLastColumn(),
+        onClearRectangle = levelController.clearRectangle,
+        onSave = levelController.saveLevel,
+        getCellView = levelController.getLevelCellView,
+        getRows = () => levelController.rows,
+        getCols = () => levelController.cols,
+        isValid = () => levelController.isLevelValid,
+        //onBack = () => sceneController.showStartGame()
+
+      )
+      
+      stage.scene = new Scene {
+        root = levelView.root
+      }
+    }
     def loadGame(name:String): Unit = {
       val gameController = new GameController(initialGameState = Some(GameSaverLoader.loadGame(name)) )
 
@@ -79,7 +107,7 @@ object Main extends JFXApp3  {
       }
     }
     def getLevels(difficulty: Difficulty) = difficulty.levels
-    val sceneController = new SceneController(stage, startGame, () => GameSaverLoader.getSavedGamesNames, getLevels, loadGame)
+    val sceneController = new SceneController(stage, startGame, startEditingLevel, () => GameSaverLoader.getSavedGamesNames, getLevels, loadGame)
     sceneController.showStartGame()
 
   }
@@ -131,3 +159,9 @@ object Main extends JFXApp3  {
 // TODO mozda da row i col pripada nekoj klasi npr Coordinate mada previse je posla i vrv nije vredno toga
 // TODO videti za redove koji imaju previse koda
 // TODO smisleti bolji naziv od ovog Bomb
+// TODO bilo bi odlicno da Board nasledjuje Level ali vrv bi bilo previse posla ili zapravo ne zbog razlike u Number i Empty
+// TODO mozda neki restart za editovanje nivoa
+// TODO namestiti ove jako cudne dimenzije kod pravljenja novg nivoa na osnovu postojeceg
+// TODO nazad dugme u pravljenju nivoa na osnovu postojeceg
+// TODO proveriti optimalnost za mineRatio i za sve ostalo vezano za validnost nivoa jer je cudna na beginner nivoima
+// TODO mozda korisniku staviti do znanja zasto nivo nije validan (npr napisati mu koliko mina/redova/kolona treba da ima da bi bio validan)

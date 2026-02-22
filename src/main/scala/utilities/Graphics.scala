@@ -2,7 +2,7 @@ package utilities
 
 import scalafx.scene.image.ImageView
 
-object Graphics {
+class Graphics {
   def Mine: ImageView = new ImageView(Images.MineImg) {
     fitWidth = 14
     fitHeight = 14

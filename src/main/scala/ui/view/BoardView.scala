@@ -1,6 +1,7 @@
-package ui
+package ui.view
 
 import scalafx.scene.layout.GridPane
+import ui.ButtonCell
 import utilities.CellStyles
 
 class BoardView(

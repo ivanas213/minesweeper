@@ -1,15 +1,14 @@
 package logic
 //
-import model.{Board, Cell, CellStatus, Hidden, Mine}
-import utilities.{BeginnerConstants, DifficultyConstants, ExpertConstants, IntermediateConstants}
+import model.{Board, Bomb, Cell, CellStatus, CellType, Empty, Hidden, Level, Mine}
 
+import java.io.{File, PrintWriter}
 import scala.math.Numeric.Implicits.*
 import scala.io.Source
 
 object LevelLoader{
 
-  def loadLevel(path: String): Board = {
-    // treba proveriti npr da li je pravougaona
+  def loadGame(path: String): Board = {
     val lines = Source.fromFile(path).getLines().toVector
     if (lines.isEmpty)
       throw new Exception("Level file can't be empty")
@@ -45,31 +44,71 @@ object LevelLoader{
     val difficulty =  getDifficulty(rows, cols)
     Board(cells, statuses, difficulty)
   }
+  
+  def loadLevel(path: String): Level = { // TODO mozda videti nesto da moze i prazan nivo
+    val lines = Source.fromFile(path).getLines().toVector // TODO videti za ovo sto nije closed i ovde i na drugom mestu gde ima
+    if (lines.isEmpty)
+      throw new Exception("Level file can't be empty")
+    val rows = lines.length
+    val cols = lines.head.length
+    if (!lines.forall(_.length == cols))
+      throw new IllegalArgumentException("Level must be rectangular")
+    val cells: Vector[Vector[CellType]] =
+      lines.map { line =>
+        line.map {
+          case '#' => Bomb
+          case '-' => Empty
+          case other =>
+            throw new Exception(s"Invalid character: $other")
+        }.toVector
+      }
+    val difficulty =  getDifficulty(rows, cols)
+    Level(cells, difficulty)
+  }
 
-  def isValid(rows: Int, cols: Int, mines: Int, difficulty: DifficultyConstants): Boolean = {
+  def isValid(rows: Int, cols: Int, mines: Int, difficulty: Difficulty): Boolean = {
     val cells = rows * cols
     val mineRatio = mines.toDouble / cells * 100
     rows >= difficulty.minRows
       && rows <= difficulty.maxRows
-      && cols >= difficulty.minColumns
-      && cols <= difficulty.maxColumns
+      && cols >= difficulty.minCols
+      && cols <= difficulty.maxCols
       && mineRatio >= difficulty.minMineRatio
       && mineRatio <= difficulty.maxMineRatio
     }
 
   def getDifficulty(rows: Int, cols: Int): Difficulty = {
-    if rows >= BeginnerConstants.minRows && rows <= BeginnerConstants.maxRows then
+    if rows >= Beginner.minRows && rows <= Beginner.maxRows then
       Beginner
-    else if rows >= IntermediateConstants.minRows && rows <= IntermediateConstants.maxRows then
+    else if rows >= Intermediate.minRows && rows <= Intermediate.maxRows then
       Intermediate
-    else if rows >= ExpertConstants.minRows && rows <= ExpertConstants.maxRows then
+    else if rows >= Expert.minRows && rows <= Expert.maxRows then
       Expert
     else
       throw Exception("Unknown difficulty " + rows)
   }
-
-  def addRowFirst(path: String, newLevelName: String): Unit = {
-
+  def saveLevel(level: Level, name: String): Unit = {
+    def folder = level.difficulty match
+      case Beginner => "beginner"
+      case Intermediate => "intermediate"
+      case Expert => "expert"
+    val path = new File(s"levels/${folder}")  
+    if !path.exists() then
+      path.mkdirs()
+    val file = new File(path, s"${name}.txt")
+    val writer = new PrintWriter(file)
+    try
+      val content = level.cells.map{
+        row => 
+          row.map{
+            case Bomb => "#"
+            case Empty => "-"
+          }.mkString
+      }.mkString("\n")
+      writer.write(content)
+    finally 
+      writer.close()
   }
-  // znaci kad se udje na izbor nivoa od kog se pravi novi nivo potrebna nam je neka metoda koja ce vratiti tekstualnu 
+
+ 
 }

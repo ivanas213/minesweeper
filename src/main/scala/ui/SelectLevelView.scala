@@ -1,6 +1,6 @@
 package ui
 
-import logic.{Difficulty, Level}
+import logic.{Difficulty, LevelParameters}
 import scalafx.geometry.Pos
 import scalafx.scene.control.{Button, Label, ScrollPane}
 import scalafx.scene.layout.VBox
@@ -9,8 +9,8 @@ import scala.util.Random
 
 class SelectLevelView(
                        difficultyName: String,
-                       levels: Vector[Level],
-                       onSelect: Level => Unit,
+                       levels: Vector[LevelParameters],
+                       onSelect: LevelParameters => Unit,
                        onBack: () => Unit
                      ) {
 

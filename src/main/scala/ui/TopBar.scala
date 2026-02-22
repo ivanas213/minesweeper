@@ -9,7 +9,7 @@ import utilities.{Graphics, Images}
 
 class TopBar(flagsLeft: Int, onHint: () => Unit, onRestart: () => Unit) {
 
-  private val smileView = Graphics.SmileView
+  private val smileView = Graphics().SmileView
   private val flagsView = new Label(s"🚩 ${flagsLeft}") {
     font = Font.font(14)
   }
@@ -33,7 +33,7 @@ class TopBar(flagsLeft: Int, onHint: () => Unit, onRestart: () => Unit) {
       onAction = _ => onRestart()
     }
     val hintButton = new Button {
-      graphic = Graphics.HintView
+      graphic = Graphics().HintView
       style = "-fx-background-color: transparent;"
       onAction = _ => onHint()
     }

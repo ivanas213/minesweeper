@@ -2,7 +2,7 @@ package logic
 
 import model.{Board, Flagged, Hidden, Lost, Mine, MoveType, Playing, Revealed}
 import services.GameTimer
-import ui.{CellView, EmptyRevealedCellView, FlaggedCellView, HiddenCellView, MineCellView, MineToRevealCellView}
+import ui.view.{CellView, EmptyRevealedCellView, FlaggedCellView, HiddenCellView, MineCellView, MineToRevealCellView}
 
 import java.io.File
 import scala.compiletime.uninitialized
@@ -11,7 +11,7 @@ class GameController(levelPath: Option[String] = None, initialGameState: Option[
 
   private var state: GameState = levelPath match {
     case Some(path) =>
-      val board = LevelLoader.loadLevel(path)
+      val board = LevelLoader.loadGame(path)
       val flags = board.countMines
       GameState(board = board, flags = flags)
 
@@ -32,7 +32,7 @@ class GameController(levelPath: Option[String] = None, initialGameState: Option[
     state = levelPath match {
       // TODO mozda izvuci ipak kao posebnu metodu
       case Some(path) =>
-        val board = LevelLoader.loadLevel(path) // TODO ovo bi moglo i malo bolje sig bez da se ucitava i ovde i tamo
+        val board = LevelLoader.loadGame(path) // TODO ovo bi moglo i malo bolje sig bez da se ucitava i ovde i tamo
         val flags = board.countMines
         
         GameState(board = board, flags = flags, onEnd = () => timer.stop())
@@ -40,7 +40,6 @@ class GameController(levelPath: Option[String] = None, initialGameState: Option[
         initialGameState.get
     }
   }
-
   def loadMoves(file: File): Unit = {
     val moves = MoveLoader.loadMoves(file)
     for (move <- moves){

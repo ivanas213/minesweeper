@@ -1,7 +1,7 @@
-package ui
+package ui.view
 
-import utilities.{Graphics, CellStyles}
 import scalafx.scene.image.ImageView
+import utilities.{CellStyles, Graphics}
 
 sealed trait CellView (
                         val text: String,
@@ -18,19 +18,19 @@ case class HiddenCellView() extends CellView(
 case class MineToRevealCellView() extends CellView(
   text = "",
   style = CellStyles().MineToRevealStyle,
-  graphic = Some (Graphics.Mine)
+  graphic = Some (Graphics().Mine)
 )
 
 case class MineCellView() extends CellView(
   text = "",
   style =  new CellStyles().Mine,
-  graphic = Some (Graphics.Mine)
+  graphic = Some (Graphics().Mine)
 )
 
 case class FlaggedCellView() extends CellView(
   text = "",
   style = new CellStyles().Flagged,
-  graphic = Some (Graphics.Flag)
+  graphic = Some (Graphics().Flag)
 )
 
 case class EmptyRevealedCellView (neighbors: Int) extends CellView(

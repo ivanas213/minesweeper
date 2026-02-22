@@ -1,4 +1,4 @@
-package ui
+package ui.view
 
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.control.{Button, Label}
@@ -9,7 +9,8 @@ import utilities.{ButtonStyles, Images}
 
 class StartView(
                      onNewGame: () => Unit,
-                     onLoadGame: () => Unit
+                     onLoadGame: () => Unit,
+                     onEditLevel: () => Unit
                    ) {
 
   private def menuButton(text: String, action: () => Unit): Button =
@@ -58,7 +59,8 @@ class StartView(
             alignment = Pos.Center
             children = Seq(
               menuButton("Нова игра", onNewGame),
-              menuButton("Настави игру", onLoadGame)
+              menuButton("Настави игру", onLoadGame),
+              menuButton("Направи нови ниво", onEditLevel)
             )
           }
         )

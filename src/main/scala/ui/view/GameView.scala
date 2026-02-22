@@ -1,10 +1,12 @@
-package ui
+package ui.view
 
 import javafx.stage.Window
 import logic.Difficulty
 import model.Score
 import scalafx.scene.layout.{BorderPane, VBox}
 import scalafx.stage.{FileChooser, Stage}
+import ui.view.BoardView
+import ui.*
 import utilities.CellStyles
 
 import java.io.File

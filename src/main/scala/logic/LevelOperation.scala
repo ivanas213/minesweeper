@@ -4,7 +4,7 @@ import model.{Bomb, CellType, Empty, Level}
 
 sealed trait LevelOperation extends (Level => Level)
 
-case class AddEmptyRowFirst() extends LevelOperation{
+case object AddEmptyRowFirst extends LevelOperation{
   override def apply(level: Level): Level = {
     if level.cells.isEmpty then 
       level
@@ -114,24 +114,28 @@ case object RemoveLastColumn extends LevelOperation{
 case class ClearRectangle(startRow: Int, startCol: Int, endRow: Int, endCol: Int) extends LevelOperation{
   
   override def apply(level: Level): Level = {
-    if level.cells.isEmpty || startRow >= endRow || startCol >= endCol || startRow < 0 || startCol < 0 then  // TODO mozda bolje da baca gresku
+    if level.cells.isEmpty then  // TODO mozda bolje da baca gresku
       level
     else
       val newCells: Vector[Vector[CellType]] = level.cells.zipWithIndex.map {
         case (row, i)  => 
-          if (i >= startRow && i <= endRow) {
+          if ((i >= startRow && i <= endRow) || (i <= startRow && i >= endRow) ) {
             row.zipWithIndex.map{
               case (cell, j) => 
-                if j >= startCol && j <= endCol then
+                if (j >= startCol && j <= endCol) || (j <= startCol && j >= endCol) then
                   Empty
                 else 
                   cell
-              case _ => throw new Exception("Unknown exception")
+              case null => throw new Exception("Unknown exception")
             }
           }
-          else throw new Exception("Unknown exception")
+          else row.map{
+            case cell =>
+                cell
+            case null => throw new Exception("Unknown exception")
+          }
 
-        case _ => throw new Exception("Unknown exception")
+        case null => throw new Exception("Unknown exception")
       }
       level.copy(cells = newCells)
   }
