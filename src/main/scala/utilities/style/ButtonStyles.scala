@@ -1,4 +1,4 @@
-package utilities
+package utilities.style
 
 object ButtonStyles {
   val ButtonClassic = """

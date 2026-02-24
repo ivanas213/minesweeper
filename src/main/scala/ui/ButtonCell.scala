@@ -1,9 +1,9 @@
 package ui
 
 import scalafx.scene.control.Button
-import utilities.CellStyles
 import scalafx.scene.input.MouseButton
 import scalafx.Includes.jfxMouseEvent2sfx
+import utilities.style.CellStyles
 
 class ButtonCell (
                  row: Int,

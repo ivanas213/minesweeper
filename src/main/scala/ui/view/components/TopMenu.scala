@@ -1,8 +1,9 @@
-package ui
+package ui.view.components
 
-import logic.Difficulty
+import model.Difficulty
 import scalafx.scene.control.{Menu, MenuBar, MenuItem, SeparatorMenuItem}
 import scalafx.stage.{FileChooser, Stage}
+import ui.dialog.ShowResultsDialog
 
 import java.io.File
 
@@ -14,7 +15,7 @@ class TopMenu(
              onLoadLevel: () => Unit,
              onLoadMoves: () => Unit,
              getDifficulty: () => Difficulty,
-             loadResults: logic.Difficulty => Seq[model.Score]
+             loadResults: Difficulty => Seq[model.Score]
              ) {
 
   

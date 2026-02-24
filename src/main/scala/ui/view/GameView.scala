@@ -1,13 +1,14 @@
 package ui.view
 
 import javafx.stage.Window
-import logic.Difficulty
-import model.Score
+import model.{Difficulty, Score}
 import scalafx.scene.layout.{BorderPane, VBox}
 import scalafx.stage.{FileChooser, Stage}
 import ui.view.BoardView
 import ui.*
-import utilities.CellStyles
+import ui.dialog.{SaveGameDialog, SaveResultDialog}
+import ui.view.components.{TopBar, TopMenu}
+import utilities.style.CellStyles
 
 import java.io.File
 

@@ -1,4 +1,4 @@
-package ui
+package ui.dialog
 
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
@@ -6,54 +6,50 @@ import scalafx.scene.control.{Button, Label, TextField}
 import scalafx.scene.layout.VBox
 import scalafx.scene.text.Font
 import scalafx.stage.{Modality, Stage}
-import utilities.ButtonStyles
+import utilities.style.ButtonStyles
 
-class SaveLevelDialog(
-                     onSave: String => Unit
-                     ){
+class SaveGameDialog(onSave: String => Unit) {
+
   def show(): Unit = {
 
     val stage = new Stage {
-      title = "Сачувај резултат"
+      title = "Сачувај игру"
       initModality(Modality.ApplicationModal)
     }
 
-    val name = new TextField {
-      promptText = "назив игре"
-      minWidth = 260
+    val nameField = new TextField {
+      promptText = "Унесите назив игре"
+      minWidth = 240
     }
 
-    val save = new Button("Сачувајте игру") {
-      minWidth = 260
-      minHeight = 42
+    val saveButton = new Button("Сачувај") {
+      minWidth = 240
+      minHeight = 40
       font = Font.font(15)
       style = ButtonStyles.ButtonClassic
       disable = true
 
       onAction = _ => {
-        onSave(name.text.value.trim)
+        onSave(nameField.text.value)
         stage.close()
       }
     }
 
-    name.text.onChange { (_, _, newValue) =>
-      save.disable = newValue.trim.isEmpty
+    nameField.text.onChange { (_, _, newValue) =>
+      saveButton.disable = newValue.trim.isEmpty
     }
 
     val root = new VBox {
-      spacing = 18
+      spacing = 20
       padding = Insets(30)
       alignment = Pos.Center
 
       children = Seq(
-
-       
-        new Label("Унесите назив игре") {
-          font = Font.font(14)
+        new Label("Назив игре") {
+          font = Font.font(18)
         },
-
-        name,
-        save
+        nameField,
+        saveButton
       )
     }
 

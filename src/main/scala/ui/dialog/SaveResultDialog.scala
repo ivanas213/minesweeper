@@ -1,13 +1,13 @@
-package ui
+package ui.dialog
 
-import logic.Difficulty
+import model.Difficulty
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
 import scalafx.scene.control.{Button, Label, TextField}
 import scalafx.scene.layout.VBox
 import scalafx.scene.text.Font
 import scalafx.stage.{Modality, Stage}
-import utilities.ButtonStyles
+import utilities.style.ButtonStyles
 
 class SaveResultDialog(
                         score: Int,

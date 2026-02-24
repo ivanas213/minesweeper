@@ -1,4 +1,4 @@
-package utilities
+package utilities.style
 
 object Colors {
   val RevealedEmpty = "#9BB8C9"

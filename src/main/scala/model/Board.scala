@@ -1,7 +1,5 @@
 package model
 
-import logic.Difficulty
-
 import scala.util.Random
 
 case class Board (

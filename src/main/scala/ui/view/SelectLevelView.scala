@@ -1,6 +1,6 @@
-package ui
+package ui.view
 
-import logic.{Difficulty, LevelParameters}
+import model.{Difficulty, LevelParameters}
 import scalafx.geometry.Pos
 import scalafx.scene.control.{Button, Label, ScrollPane}
 import scalafx.scene.layout.VBox

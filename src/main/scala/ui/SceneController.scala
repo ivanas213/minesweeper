@@ -1,16 +1,17 @@
 package ui
 
-import logic.{Difficulty, LevelParameters}
-import model.Level
+import model.{Difficulty, Level, LevelParameters}
 import scalafx.scene.{Parent, Scene}
 import scalafx.stage.Stage
-import ui.view.StartView
+import ui.view.{SelectDifficultyView, SelectLevelView, SelectSavedGameView, StartView}
+
+import java.time.LocalDateTime
 
 class SceneController(
                        stage: Stage,
                        onGameLevelSelected: LevelParameters => Unit,
                        onEditLevelSelected: LevelParameters => Unit,
-                       getSavedGames: () => Seq[String],
+                       getSavedGames: () => Seq[(String, LocalDateTime)],
                        getLevels: Difficulty => Vector[LevelParameters],
                        onGameSelected: String => Unit,
                      ) {

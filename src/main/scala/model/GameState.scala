@@ -1,8 +1,8 @@
-package logic
+package model
 
 import model.{Board, GameStatus, Hidden, Lost, Mine, Number, Playing, Revealed, Won}
-import utilities.ScoreUtilities
-import utilities.ScoreUtilities.{ClickPenalty, MineRatioMultiplier, ProbabilisticHintPenalty, SecondPenalty, TotalHintPenalty}
+import utilities.enumeration.ScoreUtilities.*
+import utilities.enumeration.ScoreUtilities
 
 
 case class GameState (

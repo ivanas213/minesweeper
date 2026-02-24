@@ -1,4 +1,4 @@
-package utilities
+package utilities.style
 
 import scalafx.scene.image.ImageView
 

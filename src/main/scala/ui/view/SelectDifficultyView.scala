@@ -1,12 +1,12 @@
-package ui
+package ui.view
 
-import logic.{Beginner, Difficulty, Expert, Intermediate, LevelParameters}
+import model.*
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.control.{Button, Label}
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.VBox
 import scalafx.scene.text.Font
-import utilities.{ButtonStyles, Images}
+import utilities.style.{ButtonStyles, Images}
 
 class SelectDifficultyView(onSelect: (difficulty: String, levels:Vector[LevelParameters]) => Unit, levels:  Difficulty => Vector[LevelParameters]) {
 

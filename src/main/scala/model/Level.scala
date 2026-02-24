@@ -1,7 +1,5 @@
 package model
 
-import logic.Difficulty
-
 
 case class Level(
                   cells: Vector[Vector[CellType]],

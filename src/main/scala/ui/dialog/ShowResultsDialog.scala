@@ -1,14 +1,16 @@
-package ui
+package ui.dialog
 
+import logic.ScoreSaverLoader
+import model.{Beginner, Difficulty, Expert, Intermediate}
+import scalafx.collections.ObservableBuffer
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
 import scalafx.scene.control.{Button, ComboBox, Label}
 import scalafx.scene.layout.VBox
 import scalafx.scene.text.Font
 import scalafx.stage.{Modality, Stage}
-import scalafx.collections.ObservableBuffer
-import utilities.ButtonStyles
-import logic.{Difficulty, ScoreSaverLoader, Beginner, Intermediate, Expert}
+import utilities.style.ButtonStyles
+
 class ShowResultsDialog(initialDifficulty: Difficulty, loadResults: Difficulty => Seq[model.Score]) {
 
   private val scoreLoader = new ScoreSaverLoader()

@@ -1,14 +1,16 @@
-package logic
+package logic.controllers
 
-import model.{Board, Flagged, Hidden, Lost, Mine, MoveType, Playing, Revealed}
+import logic.*
+import model.*
 import services.GameTimer
-import ui.view.{CellView, EmptyRevealedCellView, FlaggedCellView, HiddenCellView, MineCellView, MineToRevealCellView}
+import ui.view.*
 
 import java.io.File
 import scala.compiletime.uninitialized
 
 class GameController(levelPath: Option[String] = None, initialGameState: Option[GameState] = None) {
 
+  
   private var state: GameState = levelPath match {
     case Some(path) =>
       val board = LevelLoader.loadGame(path)
@@ -18,14 +20,34 @@ class GameController(levelPath: Option[String] = None, initialGameState: Option[
     case None =>
       initialGameState.get
   }
-
+  private val timer = new GameTimer(seconds =>
+    state = state.copy(time = seconds)
+    if (onTimeChanged != null)
+      onTimeChanged(seconds)
+  )
   private val gameSaverLoader = GameSaverLoader
   private var onTimeChanged: Int => Unit = uninitialized
-  private def resetTimer(): Unit = timer.reset()
-  def getTime: Int = state.time
-  def getClicks: Int = state.clicks
-  def getScore: Int = state.getScore
-  def getDifficulty: Difficulty = state.board.difficulty
+
+  def setOnTimeChanged(callback: Int => Unit): Unit =
+    onTimeChanged = callback
+
+  def onLeftClick(row: Int, col: Int): Unit = {
+    if (state.status == Playing)
+      state = state.revealCell(row, col)
+      incrementClicks()
+
+  }
+
+  def onRightClick(row: Int, col: Int): Unit = {
+    if (state.status == Playing)
+      if !state.board.cellStatusAt(row, col).contains(Flagged) then
+        decrementFlags()
+      else
+        incrementFlags()
+      incrementClicks()
+      state = state.toggleFlag(row, col)
+  }
+
   def restart(): Unit = {
     resetTimer()
     timer.start()
@@ -34,36 +56,33 @@ class GameController(levelPath: Option[String] = None, initialGameState: Option[
       case Some(path) =>
         val board = LevelLoader.loadGame(path) // TODO ovo bi moglo i malo bolje sig bez da se ucitava i ovde i tamo
         val flags = board.countMines
-        
+
         GameState(board = board, flags = flags, onEnd = () => timer.stop())
       case None =>
         initialGameState.get
     }
   }
+
   def loadMoves(file: File): Unit = {
     val moves = MoveLoader.loadMoves(file)
-    for (move <- moves){
-      if (move.moveType == MoveType.Left) 
+    for (move <- moves) {
+      if (move.moveType == MoveType.Left)
         onLeftClick(move.row, move.col)
       else
         onRightClick(move.row, move.col)
     }
   }
 
-  def setOnTimeChanged(callback: Int => Unit): Unit =
-    onTimeChanged = callback
+  def saveGame(name: String): Unit = gameSaverLoader.saveGame(name, state)
 
-  private val timer = new GameTimer ( seconds =>
-    state = state.copy(time = seconds)
-    if (onTimeChanged != null)
-      onTimeChanged(seconds)
-  )
+  def getTime: Int = state.time
+  
+  def getClicks: Int = state.clicks
+  
+  def getScore: Int = state.getScore
+  
+  def getDifficulty: Difficulty = state.board.difficulty
 
-  timer.resetTo(state.time)
-  timer.start()
-  state = state.copy(onEnd = () => timer.stop())
-  def saveGame(name:String): Unit = gameSaverLoader.saveGame(name, state)
-  private def stopTimer(): Unit = timer.stop()
   def getHintCoordinates: Option[(Int, Int)] = {
     if (state.status == Playing)
       val hint = state.board.getSafeCell
@@ -79,11 +98,10 @@ class GameController(levelPath: Option[String] = None, initialGameState: Option[
               Some(r, c)
             case None =>
               None
-    else 
+    else
       None
   }
-  def isLost:Boolean = state.status == Lost
-  def isEnded: Boolean = state.status != Playing
+
   def getCellView(row: Int, col: Int): CellView = {
     val cell = state.board.cellAt(row, col)
     val cellStatus = state.board.cellStatusAt(row, col)
@@ -109,32 +127,39 @@ class GameController(levelPath: Option[String] = None, initialGameState: Option[
               case Some(model.Number(value)) => HiddenCellView()
               case _ => MineToRevealCellView()
   }
-  def getState: GameState = state
-  
-  private def incrementClicks(): Unit = state = state.copy(clicks = state.clicks + 1)
-  private def incrementFlags(): Unit = state = state.copy(flags = state.flags + 1)
-  private def decrementFlags(): Unit = state = state.copy(flags = state.flags - 1)
-  private def incrementProbablisticHintsUsed(): Unit = state = state.copy(probabilisticHintsUsed = state.probabilisticHintsUsed + 1)
-  private def incrementTotalHintsUsed(): Unit = state = state.copy(totalHintsUsed = state.totalHintsUsed + 1)
+
   def rows: Int = state.board.rows
+
   def cols: Int = state.board.cols
-  def onLeftClick(row: Int, col: Int): Unit = {
-    if (state.status == Playing)
-      state = state.revealCell(row, col)
-      incrementClicks()
-    
-  }
+  
+  def getState: GameState = state
 
-  def onRightClick(row: Int, col: Int): Unit = {
-    if (state.status == Playing)
-      if !state.board.cellStatusAt(row, col).contains(Flagged) then
-        decrementFlags()
-      else
-        incrementFlags()
-      incrementClicks()
-      state = state.toggleFlag(row, col)
-  }
+  def isLost: Boolean = state.status == Lost
 
+  def isEnded: Boolean = state.status != Playing
+
+  private def incrementClicks(): Unit = state = state.copy(clicks = state.clicks + 1)
+
+  private def incrementFlags(): Unit = state = state.copy(flags = state.flags + 1)
+
+  private def decrementFlags(): Unit = state = state.copy(flags = state.flags - 1)
+
+  private def incrementProbablisticHintsUsed(): Unit = state = state.copy(probabilisticHintsUsed = state.probabilisticHintsUsed + 1)
+
+  private def incrementTotalHintsUsed(): Unit = state = state.copy(totalHintsUsed = state.totalHintsUsed + 1)
+  private def resetTimer(): Unit = timer.reset()
+
+  private def stopTimer(): Unit = timer.stop()
+
+
+  timer.resetTo(state.time)
+  timer.start()
+  state = state.copy(onEnd = () => timer.stop())
+  
+  
+  
+
+ 
   
 
   

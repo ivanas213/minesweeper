@@ -1,7 +1,9 @@
-package logic
+package logic.controllers
+
+import logic.*
 import model.{Bomb, Empty, Level}
 import ui.view.{EmptyLevelCellView, LevelCellView, MineLevelCellView}
-import utilities.{BeginnerConstants, DifficultyConstants, IntermediateConstants}
+import utilities.enumeration.{BeginnerConstants, DifficultyConstants, IntermediateConstants}
 
 class LevelController(path: String) {
 

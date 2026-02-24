@@ -1,11 +1,11 @@
-package ui
+package ui.view.components
 
 import scalafx.geometry.Pos
 import scalafx.geometry.Pos.Center
 import scalafx.scene.control.{Button, Label}
 import scalafx.scene.layout.{BorderPane, HBox}
 import scalafx.scene.text.Font
-import utilities.{Graphics, Images}
+import utilities.style.{Graphics, Images}
 
 class TopBar(flagsLeft: Int, onHint: () => Unit, onRestart: () => Unit) {
 

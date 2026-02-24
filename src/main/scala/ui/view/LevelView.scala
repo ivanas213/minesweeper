@@ -5,9 +5,10 @@ import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.control.{Button, Label}
 import scalafx.scene.layout.{GridPane, HBox, VBox}
 import scalafx.scene.text.Font
-import ui.{ButtonCell, SaveLevelDialog}
+import ui.ButtonCell
+import ui.dialog.SaveLevelDialog
 import ui.view.LevelEditState.{ClearRectangle, Default}
-import utilities.ButtonStyles
+import utilities.style.ButtonStyles
 
 enum LevelEditState:
   case Default, Expand, Remove, ClearRectangle

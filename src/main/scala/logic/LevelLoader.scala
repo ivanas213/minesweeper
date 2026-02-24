@@ -1,6 +1,6 @@
 package logic
 //
-import model.{Board, Bomb, Cell, CellStatus, CellType, Empty, Hidden, Level, Mine}
+import model.{Beginner, Board, Bomb, Cell, CellStatus, CellType, Difficulty, Empty, Expert, Hidden, Intermediate, Level, Mine}
 
 import java.io.{File, PrintWriter}
 import scala.math.Numeric.Implicits.*

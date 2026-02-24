@@ -1,4 +1,5 @@
-package utilities
+package utilities.enumeration
+
 
 sealed trait DifficultyConstants{
   val minRows:Int

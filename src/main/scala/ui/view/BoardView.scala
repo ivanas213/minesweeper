@@ -2,7 +2,7 @@ package ui.view
 
 import scalafx.scene.layout.GridPane
 import ui.ButtonCell
-import utilities.CellStyles
+import utilities.style.CellStyles
 
 class BoardView(
                  rows: Int,

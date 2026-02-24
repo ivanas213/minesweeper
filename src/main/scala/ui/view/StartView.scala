@@ -5,7 +5,7 @@ import scalafx.scene.control.{Button, Label}
 import scalafx.scene.image.ImageView
 import scalafx.scene.layout.VBox
 import scalafx.scene.text.Font
-import utilities.{ButtonStyles, Images}
+import utilities.style.{ButtonStyles, Images}
 
 class StartView(
                      onNewGame: () => Unit,

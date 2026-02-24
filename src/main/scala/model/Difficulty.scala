@@ -1,6 +1,6 @@
-package logic
+package model
 
-import utilities.{BeginnerConstants, ExpertConstants, IntermediateConstants}
+import utilities.enumeration.{BeginnerConstants, ExpertConstants, IntermediateConstants}
 
 sealed trait Difficulty {
   def name: String

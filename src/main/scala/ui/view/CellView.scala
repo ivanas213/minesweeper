@@ -1,7 +1,7 @@
 package ui.view
 
 import scalafx.scene.image.ImageView
-import utilities.{CellStyles, Graphics}
+import utilities.style.{CellStyles, Graphics}
 
 sealed trait CellView (
                         val text: String,

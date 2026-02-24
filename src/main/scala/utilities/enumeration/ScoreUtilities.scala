@@ -1,4 +1,4 @@
-package utilities
+package utilities.enumeration
 
 object ScoreUtilities {
   val TotalHintPenalty = 40

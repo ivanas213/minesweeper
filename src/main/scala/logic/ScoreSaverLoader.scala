@@ -1,8 +1,8 @@
 package logic
 
+import model.{Beginner, Difficulty, Expert, Intermediate}
+
 import java.io.{File, PrintWriter}
-
-
 import java.io.{File, PrintWriter}
 import scala.io.Source
 

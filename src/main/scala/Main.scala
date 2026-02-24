@@ -1,4 +1,6 @@
-import logic.{Difficulty, Expert, GameController, GameSaverLoader, LevelController, LevelParameters, ScoreSaverLoader}
+import logic.controllers.{GameController, LevelController}
+import logic.{GameSaverLoader, ScoreSaverLoader}
+import model.{Difficulty, Expert, LevelParameters}
 import scalafx.application.JFXApp3
 import scalafx.application.JFXApp3.PrimaryStage
 import scalafx.scene.Scene
@@ -73,7 +75,7 @@ object Main extends JFXApp3  {
       }
     }
     def loadGame(name:String): Unit = {
-      val gameController = new GameController(initialGameState = Some(GameSaverLoader.loadGame(name)) )
+      val gameController = new GameController(initialGameState = Some(GameSaverLoader.loadGame(name)._1) )
 
       val gameView = new GameView(
         rows = gameController.rows,
@@ -116,11 +118,6 @@ object Main extends JFXApp3  {
 
 
 
-// TODO videti ono za () => sto svuda imam a vrv ne treba
-// TODO za ucitavanje nivoa mozda sortiranje po datumu/ispis datuma/brisanje
-// TODO sloziti GameController da ne bude haotican
-// TODO razvrstati klase u potpakete (npr views)
-// TODO sta znaci Unit => Unit
 // TODO videti za ono isEnd i isLost sto je realno gledano glupo
 // TODO sat i zastavica da budu lepsi
 // TODO mozda da ne moze da se sacuva igra ako status nije Playing ako to vec nemam
@@ -165,3 +162,5 @@ object Main extends JFXApp3  {
 // TODO nazad dugme u pravljenju nivoa na osnovu postojeceg
 // TODO proveriti optimalnost za mineRatio i za sve ostalo vezano za validnost nivoa jer je cudna na beginner nivoima
 // TODO mozda korisniku staviti do znanja zasto nivo nije validan (npr napisati mu koliko mina/redova/kolona treba da ima da bi bio validan)
+// TODO za ucitavanje nivoa mozda dodati kantu za brisanje
+// TODO nazad u nastavi igru da lepo izgleda

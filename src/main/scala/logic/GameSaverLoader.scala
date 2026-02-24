@@ -1,9 +1,11 @@
 package logic
 
-import model.{Board, Cell, CellStatus, Flagged, Hidden, Mine, Number, Revealed}
+import model.{Beginner, Board, Cell, CellStatus, Expert, Flagged, GameState, Hidden, Intermediate, Mine, Number, Revealed}
 
 import java.io.{File, PrintWriter}
 import scala.io.Source
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object GameSaverLoader {
   private def serializeBoardCells(board: Board): String =
@@ -37,6 +39,9 @@ object GameSaverLoader {
     }).mkString("\n")
 
   def saveGame(name: String, gameState: GameState): Unit= {
+    val now = LocalDateTime.now()
+    val currentTime = now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+
     val directory = new File("saved")
     if (!directory.exists())
       directory.mkdir()
@@ -63,7 +68,8 @@ object GameSaverLoader {
          |  "probHints": ${gameState.probabilisticHintsUsed},
          |  "boardCells": "${serializeBoardCells(gameState.board).replace("\n", "\\n")}",
          |  "boardStatuses": "${serializeBoardStatuses(gameState.board).replace("\n", "\\n")}",
-         |  "difficulty": "$difficultyString"
+         |  "difficulty": "$difficultyString",
+         |  "savedAt" : "$currentTime"
          |}
          |""".stripMargin
 
@@ -72,20 +78,37 @@ object GameSaverLoader {
   }
 
 
-  def getSavedGamesNames: Seq[String] = {
+  def getSavedGamesNames: Seq[(String, LocalDateTime)] = {
     val dir = new File("saved")
 
     if (!dir.exists() || !dir.isDirectory)
       Seq.empty
-    else
+    else {
       dir.listFiles()
         .filter(file => file.isFile && file.getName.endsWith(".json"))
-        .map(_.getName.stripSuffix(".json"))
+        .flatMap { file =>
+          val source = Source.fromFile(file)
+          val content = try source.mkString finally source.close()
+
+          val pattern = "\"savedAt\"\\s*:\\s*\"([^\"]*)\"".r
+
+          pattern.findFirstMatchIn(content).map { m =>
+            val dateTime =
+              LocalDateTime.parse(
+                m.group(1),
+                DateTimeFormatter.ISO_LOCAL_DATE_TIME
+              )
+
+            val name = file.getName.stripSuffix(".json")
+            (name, dateTime)
+          }
+        }
         .toSeq
+        .sortBy(_._2)(Ordering[LocalDateTime].reverse)
+    }
   }
 
-
-  def loadGame(name: String): GameState = {
+  def loadGame(name: String): (GameState, LocalDateTime) = {
     val file = new File(s"saved/$name.json")
     if (!file.exists())
       throw new Exception("Save file not found")
@@ -125,7 +148,11 @@ object GameSaverLoader {
       
     val difficultyRaw =
       extractDifficulty("\"difficulty\"\\s*:\\s*\"([BIE])\"")
+    val savedAtRaw =
+      extractString("\"savedAt\"\\s*:\\s*\"([^\"]*)\"")
 
+    val savedAt =
+      LocalDateTime.parse(savedAtRaw, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     val cellLines = boardCellsRaw.split("\n")
     val statusLines = boardStatusesRaw.split("\n")
 
@@ -156,7 +183,7 @@ object GameSaverLoader {
 
     val board = Board(cells, statuses, difficulty)
 
-    GameState(
+    val gameState = GameState(
       board = board,
       flags = flagsLeft,
       time = elapsedTime,
@@ -164,6 +191,7 @@ object GameSaverLoader {
       totalHintsUsed = totalHints,
       probabilisticHintsUsed = probHints
     )
+    (gameState, savedAt)
   }
 
 
