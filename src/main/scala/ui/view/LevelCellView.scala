@@ -22,3 +22,8 @@ case class SelectedToClearCellView() extends LevelCellView(
   style = new CellStyles().SelectedToClear,
   graphic = None
 )
+
+case class PivotCellView() extends LevelCellView(
+  style = new CellStyles().Pivot,
+  graphic = None
+)

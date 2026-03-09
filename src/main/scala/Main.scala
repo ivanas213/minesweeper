@@ -67,7 +67,7 @@ object Main extends JFXApp3  {
         getCols = () => levelController.cols,
         isValid = () => levelController.isLevelValid,
         //onBack = () => sceneController.showStartGame()
-
+        onApplyRotation = levelController.applyRotation
       )
       
       stage.scene = new Scene {

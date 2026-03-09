@@ -15,5 +15,9 @@ object Images {
   val VeryHappyImg = new Image("/very-happy.png")
   val HintImg = new Image("/hint.png")
   val StartGame = new Image("/startgame.png")
+  val RotateCW = new Image("/rotateCW.png")
+  val RotateCCW = new Image("/rotateCCW.png")
+  val RectangleSelect = new Image("/rectangle.png")
+  val PivotSelect = new Image("/rotate.png")
 
 }

@@ -1,17 +1,25 @@
 package ui.view
 
+import logic.ExpandMode.NonExpanding
+import logic.OverlayMode.Transparent
+import logic.{ExpandMode, OverlayMode, RotationDirection}
 import model.Level
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.control.{Button, Label}
+import scalafx.scene.image.ImageView
 import scalafx.scene.layout.{GridPane, HBox, VBox}
 import scalafx.scene.text.Font
 import ui.ButtonCell
 import ui.dialog.SaveLevelDialog
-import ui.view.LevelEditState.{ClearRectangle, Default}
-import utilities.style.ButtonStyles
+import ui.view.LevelEditState.{ChooseOperationType, ClearRectangle, Rotation}
+import utilities.style.{ButtonStyles, Images}
 
 enum LevelEditState:
-  case Default, Expand, Remove, ClearRectangle
+  case ChooseOperationType, DefaultBasicOperations, Expand, Remove, ClearRectangle, DefaultIsometry, Rotation, Reflexion, CustomIsometry
+
+enum RotationSelectionMode:
+  case Rectangle, Pivot
+
 case class Rectangle(startRow: Int, startCol: Int, endRow: Int, endCol:Int)
 
 class LevelView(
@@ -29,16 +37,29 @@ class LevelView(
                 onSave: String => Unit,
                 getRows: () => Int,
                 getCols: () => Int,
-                isValid: () => Boolean
+                isValid: () => Boolean,
+                onApplyRotation: (Int, Int, Int, Int, ExpandMode, OverlayMode, Int, Int, RotationDirection) => Unit
                 //, onBack: () => Unit
                ) {
-  private var state = Default
+  private var state = ChooseOperationType
   private val sidePanel: VBox = new VBox {
     spacing = 15
     padding = Insets(20)
     alignment = Pos.TopCenter
   }
   private var rectangle: Option[Rectangle] = None
+  private var rotationSelectionMode: RotationSelectionMode = RotationSelectionMode.Rectangle
+  private var rotationDirection: RotationDirection = RotationDirection.CW
+
+  private var rotationPivot: Option[(Int, Int)] = None
+  private var rotationExpandMode: ExpandMode = ExpandMode.NonExpanding
+  private var rotationOverlayMode: OverlayMode = OverlayMode.Transparent
+  private def selectedStyle: String = ButtonStyles.ButtonMouseEntered
+  private def unselectedStyle: String = ButtonStyles.ButtonClassic
+
+  private def canApplyRotation: Boolean =
+    rectangle.isDefined && rotationPivot.isDefined && rotationDirection != null
+
   private def setState(newState: LevelEditState): Unit = {
     state = newState
     updateSidePanel()
@@ -55,7 +76,23 @@ class LevelView(
     dialog.show()
     rectangle = None
   }
-  private def defaultSidePanel(): Seq[javafx.scene.Node] = Seq(
+
+  private def chooseOperationTypeSidePanel(): Seq[javafx.scene.Node] = Seq(
+    new Label("Изаберите тип операција") {
+      font = Font.font(18)
+    },
+    operationButton("Обичне операције") {
+      setState(LevelEditState.DefaultBasicOperations)
+    },
+    operationButton("Изометрије") {
+      setState(LevelEditState.DefaultIsometry)
+    },
+    operationButton("Назад") {
+      setState(LevelEditState.ChooseOperationType)
+    },
+    saveButton
+  )
+  private def defaultBasicOperationsSidePanel(): Seq[javafx.scene.Node] = Seq(
     new Label("Прављење новог нивоа") {
       font = Font.font(18)
     },
@@ -68,9 +105,217 @@ class LevelView(
     operationButton("Очисти део табле") {
       setState(LevelEditState.ClearRectangle)
     },
+    operationButton("Назад") {
+      setState(LevelEditState.ChooseOperationType)
+    },
     saveButton
   )
 
+  private def rotationSidePanel(): Seq[javafx.scene.Node] = {
+    val rectangleModeButton = new Button {
+      graphic = new ImageView(Images.RectangleSelect) {
+        fitWidth = 20
+        fitHeight = 20
+        preserveRatio = true
+      }
+      style =
+        if rotationSelectionMode == RotationSelectionMode.Rectangle then selectedStyle
+        else unselectedStyle
+
+      onAction = _ => {
+        rotationSelectionMode = RotationSelectionMode.Rectangle
+        updateSidePanel()
+      }
+    }
+
+    val pivotModeButton = new Button {
+      graphic = new ImageView(Images.PivotSelect) {
+        fitWidth = 20
+        fitHeight = 20
+        preserveRatio = true
+      }
+      style =
+        if rotationSelectionMode == RotationSelectionMode.Pivot then selectedStyle
+        else unselectedStyle
+
+      onAction = _ => {
+        rotationSelectionMode = RotationSelectionMode.Pivot
+        updateSidePanel()
+      }
+    }
+
+    val cwButton = new Button {
+      graphic = new ImageView(Images.RotateCW) {
+        fitWidth = 20
+        fitHeight = 20
+        preserveRatio = true
+      }
+      style =
+        if rotationDirection == RotationDirection.CW then selectedStyle
+        else unselectedStyle
+
+      onAction = _ => {
+        rotationDirection = RotationDirection.CW
+        updateSidePanel()
+      }
+    }
+
+    val ccwButton = new Button {
+      graphic = new ImageView(Images.RotateCCW) {
+        fitWidth = 20
+        fitHeight = 20
+        preserveRatio = true
+      }
+      style =
+        if rotationDirection == RotationDirection.CCW then selectedStyle
+        else unselectedStyle
+
+      onAction = _ => {
+        rotationDirection = RotationDirection.CCW
+        updateSidePanel()
+      }
+    }
+    val expandingYesButton = new Button("Да") {
+      minWidth = 60
+      style =
+        if rotationExpandMode == ExpandMode.Expanding then selectedStyle
+        else unselectedStyle
+
+      onAction = _ => {
+        rotationExpandMode = ExpandMode.Expanding
+        updateSidePanel()
+      }
+    }
+
+    val expandingNoButton = new Button("Не") {
+      minWidth = 60
+      style =
+        if rotationExpandMode == ExpandMode.NonExpanding then selectedStyle
+        else unselectedStyle
+
+      onAction = _ => {
+        rotationExpandMode = ExpandMode.NonExpanding
+        updateSidePanel()
+      }
+    }
+
+    val transparentYesButton = new Button("Да") {
+      minWidth = 60
+      style =
+        if rotationOverlayMode == OverlayMode.Transparent then selectedStyle
+        else unselectedStyle
+
+      onAction = _ => {
+        rotationOverlayMode = OverlayMode.Transparent
+        updateSidePanel()
+      }
+    }
+
+    val transparentNoButton = new Button("Не") {
+      minWidth = 60
+      style =
+        if rotationOverlayMode == OverlayMode.Opaque then selectedStyle
+        else unselectedStyle
+
+      onAction = _ => {
+        rotationOverlayMode = OverlayMode.Opaque
+        updateSidePanel()
+      }
+    }
+    val applyButton = new Button("Примени") {
+      minWidth = 160
+      style = ButtonStyles.ButtonClassic
+      disable = !canApplyRotation
+
+      onAction = _ => {
+        onApplyRotation(rectangle.get.startRow, rectangle.get.startCol, rectangle.get.endRow, rectangle.get.endCol, rotationExpandMode, rotationOverlayMode, rotationPivot.get._1, rotationPivot.get._2, rotationDirection)
+        rotationExpandMode = NonExpanding
+        rotationOverlayMode = Transparent
+        rectangle = None
+        rotationPivot = None
+        refreshUI()
+      }
+    }
+
+    Seq(
+      new Label("Ротација") {
+        font = Font.font(18)
+      },
+
+      new Label("Изаберите режим:") {
+        font = Font.font(14)
+      },
+
+      new HBox {
+        spacing = 10
+        alignment = Pos.Center
+        children = Seq(rectangleModeButton, pivotModeButton)
+      },
+
+      new Label("Смер ротације") {
+        font = Font.font(14)
+      },
+
+      new HBox {
+        spacing = 15
+        alignment = Pos.Center
+        children = Seq(cwButton, ccwButton)
+      },
+
+      new Label("Проширива") {
+        font = Font.font(14)
+      },
+
+      new HBox {
+        spacing = 10
+        alignment = Pos.Center
+        children = Seq(expandingYesButton, expandingNoButton)
+      },
+
+      new Label("Транспарентна") {
+        font = Font.font(14)
+      },
+
+      new HBox {
+        spacing = 10
+        alignment = Pos.Center
+        children = Seq(transparentYesButton, transparentNoButton)
+      },
+
+      applyButton,
+
+      operationButton("Назад") {
+        setState(LevelEditState.DefaultIsometry)
+        rectangle = None
+        rotationPivot = None
+        refreshUI()
+      }
+    )
+  }
+  private def reflexionSidePanel(): Seq[javafx.scene.Node] = Seq(
+
+  )
+  private def customIsometrySidePanel(): Seq[javafx.scene.Node] = Seq(
+
+  )
+  private def isometrySidePanel(): Seq[javafx.scene.Node] = Seq(
+    new Label("Изометрије") {
+      font = Font.font(18)
+    },
+    operationButton("Ротација") {
+      setState(LevelEditState.Rotation)
+    },
+    operationButton("Рефлексија") {
+      setState(LevelEditState.Reflexion)
+    },
+    operationButton("Сложена изометрија") {
+      setState(LevelEditState.CustomIsometry)
+    },
+    operationButton("Назад") {
+      setState(LevelEditState.ChooseOperationType)
+    },
+    saveButton
+  )
   private def expandSidePanel(): Seq[javafx.scene.Node] = Seq(
     new Label("Проширивање") {
       font = Font.font(16)
@@ -92,7 +337,7 @@ class LevelView(
       refreshUI()
     },
     operationButton("Назад") {
-      setState(LevelEditState.Default)
+      setState(LevelEditState.DefaultBasicOperations)
     }
   )
 
@@ -120,7 +365,7 @@ class LevelView(
 
     },
     operationButton("Назад") {
-      setState(LevelEditState.Default)
+      setState(LevelEditState.DefaultBasicOperations)
     }
   )
 
@@ -135,8 +380,8 @@ class LevelView(
       rectangle = None
       refreshUI()
     },
-    operationButton("Nazad") {
-      setState(LevelEditState.Default)
+    operationButton("Назад") {
+      setState(LevelEditState.DefaultBasicOperations)
       rectangle = None
       refreshUI()
     }
@@ -144,11 +389,15 @@ class LevelView(
 
   private def updateSidePanel(): Unit = {
     val content = state match
-      case LevelEditState.Default => defaultSidePanel()
+      case LevelEditState.ChooseOperationType => chooseOperationTypeSidePanel()
+      case LevelEditState.DefaultBasicOperations => defaultBasicOperationsSidePanel()
       case LevelEditState.Expand => expandSidePanel()
       case LevelEditState.Remove => removeSidePanel()
       case LevelEditState.ClearRectangle => clearRectangleSidePanel()
-
+      case LevelEditState.DefaultIsometry => isometrySidePanel()
+      case LevelEditState.Rotation => rotationSidePanel()
+      case LevelEditState.Reflexion => reflexionSidePanel()
+      case LevelEditState.CustomIsometry => customIsometrySidePanel()
     sidePanel.children.setAll(content *)
   }
 
@@ -157,10 +406,10 @@ class LevelView(
 
     
   private def onLeftClick(row:Int, col:Int): Unit = {
-    if state != ClearRectangle then
+    if state != ClearRectangle && state != Rotation then
       onLeft(row, col)
       refreshUI()
-    else
+    else if state == ClearRectangle || rotationSelectionMode == RotationSelectionMode.Rectangle then
       rectangle match
         case None =>
           rectangle = Some(Rectangle(row, col, row, col ))
@@ -169,12 +418,14 @@ class LevelView(
         case Some(Rectangle(startRow, startCol, endRow, endCol)) =>
           rectangle = Some(Rectangle(rectangle.get.endRow, rectangle.get.endCol, row, col))
 
-      showRectangleSelection(rectangle)
-
+      showRectangleSelection()
+    else
+      rotationPivot = Some(row, col)
+      showRectangleSelection()
 
   }
 
-  private def showRectangleSelection(rectangle: Option[Rectangle]): Unit = {
+  private def showRectangleSelection(): Unit = {
     grid.children.clear()
     val rows = getRows()
     val cols = getCols()
@@ -204,11 +455,17 @@ class LevelView(
           col <- startC to endC
         } {
           buttons(row)(col).style = SelectedToClearCellView().style
-          buttons(row)(col).graphic = null
+          if state == ClearRectangle then
+            buttons(row)(col).graphic = null
         }
-      case Some(Rectangle(startRow, startCol, endRow, endCol)) =>
+      case Some(Rectangle(startRow, startCol, endRow, endCol)) if (startRow == endRow && startCol == endCol) =>
         buttons(startRow)(startCol).style = SelectedToClearCellView().style
-        buttons(startRow)(startCol).graphic = null
+        if state == ClearRectangle then
+          buttons(startRow)(startCol).graphic = null
+      case Some(_) =>
+    if rotationPivot.isDefined then
+      buttons(rotationPivot.get._1)(rotationPivot.get._2).style = PivotCellView().style
+
 
   }
 

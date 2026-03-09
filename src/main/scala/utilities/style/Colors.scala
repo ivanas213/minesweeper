@@ -12,6 +12,8 @@ object Colors {
   val Green2 = "#11D060"
   val LightBlue = "#30B6DB"
   val VeryLightBlue = "#60E3F7"
+  val Orange = "#D1872C"
+  val LightOrange = "#E3A559"
   val NumberColors: Map[Int, String] = Map(
     1 -> "#1976D2",
     2 -> "#388E3C",

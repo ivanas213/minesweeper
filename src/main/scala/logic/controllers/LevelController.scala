@@ -33,4 +33,9 @@ class LevelController(path: String) {
   def onSave(level: Level, name: String): Unit ={
     throw new NotImplementedError()
   }
+  def applyRotation(startRow: Int, startCol: Int, endRow: Int, endCol: Int, expandMode: ExpandMode, overlay: OverlayMode, pivotRow: Int, pivotCol: Int, rotationDirection: RotationDirection): Unit ={
+    val rectangle = Rectangle(startRow, startCol, endRow, endCol)
+    val config = IsometryBaseConfiguration(rectangle, expandMode, overlay)
+    level = Rotation90(config, pivotRow, pivotCol, rotationDirection)(level)
+  }
 }
