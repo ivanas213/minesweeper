@@ -18,8 +18,13 @@ case class MineLevelCellView() extends LevelCellView(
   graphic = Some (Graphics().Mine)
 )
 
-case class SelectedToClearCellView() extends LevelCellView(
-  style = new CellStyles().SelectedToClear,
+case class SelectedRectangle() extends LevelCellView(
+  style = new CellStyles().SelectedRectangle,
+  graphic = None
+)
+
+case class SelectedPicture() extends LevelCellView(
+  style = new CellStyles().SelectedPicture,
   graphic = None
 )
 
@@ -27,3 +32,9 @@ case class PivotCellView() extends LevelCellView(
   style = new CellStyles().Pivot,
   graphic = None
 )
+
+case class ReflectionAxisCellView() extends LevelCellView(
+  style = new CellStyles().ReflexionAxis,
+  graphic = None
+)
+

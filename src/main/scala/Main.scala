@@ -67,7 +67,19 @@ object Main extends JFXApp3  {
         getCols = () => levelController.cols,
         isValid = () => levelController.isLevelValid,
         //onBack = () => sceneController.showStartGame()
-        onApplyRotation = levelController.applyRotation
+        onApplyRotation = levelController.applyRotation,
+        onApplyReflection = levelController.applyReflection,
+        onApplyCentralSymmetry = levelController.applyCentralSymmetry,
+        onApplyTranslation = levelController.applyTranslation,
+        onAddRotation = levelController.addRotation,
+        onAddReflection = levelController.addReflection,
+        onAddCentralSymmetry = levelController.addCentralSymmetry,
+        onAddTranslation = levelController.addTranslation,
+        isometryStepNames = () => levelController.getIsometryStepNames,
+        onSaveCustomIsometry = levelController.saveCurrentIsometry,
+        savedIsometryNames = () => levelController.getSavedIsometryNames,
+        onApplySavedIsometry = levelController.applySavedIsometry,
+        resetSelectedIsometry =  () => levelController.resetIsometry()
       )
       
       stage.scene = new Scene {
@@ -115,9 +127,6 @@ object Main extends JFXApp3  {
   }
 }
 
-
-
-
 // TODO videti za ono isEnd i isLost sto je realno gledano glupo
 // TODO sat i zastavica da budu lepsi
 // TODO mozda da ne moze da se sacuva igra ako status nije Playing ako to vec nemam
@@ -164,3 +173,12 @@ object Main extends JFXApp3  {
 // TODO mozda korisniku staviti do znanja zasto nivo nije validan (npr napisati mu koliko mina/redova/kolona treba da ima da bi bio validan)
 // TODO za ucitavanje nivoa mozda dodati kantu za brisanje
 // TODO nazad u nastavi igru da lepo izgleda
+// TODO malo bolje provere za rotaciju (ui)
+// TODO napraviti da je nebitan redosled izbora kod refleksije
+// TODO KAD JE NOVA IGRA TIMER SE NE RESTARTUJE DOBRO
+// TODO zasto se nekad timer zaustavi
+// TODO da lepo rectangle dugme postane selected kad treba
+// TODO da nivo bude centriran kad ima previse teksta
+// TODO popraviti sve nedostatke vezane za izbor ose i validacije ovo je sad mozda i dobro
+// TODO horizontalna translacija nekad radi nekad ne (vise ne)
+// TODO ako je stanje translacija da levi klik ne bira pivot

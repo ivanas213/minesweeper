@@ -18,6 +18,12 @@ object Images {
   val RotateCW = new Image("/rotateCW.png")
   val RotateCCW = new Image("/rotateCCW.png")
   val RectangleSelect = new Image("/rectangle.png")
+  val RectangleCopy = new Image("/rectangle_copy.png")
   val PivotSelect = new Image("/rotate.png")
+  val RowSelect = new Image("/row.png")
+  val ColumnSelect = new Image("/column.png")
+  val Diagonal1Select = new Image("/diagonal1.png")
+  val Diagonal2Select = new Image("/diagonal2.png")
+  val Clock = new Image("/clock.png")
 
 }

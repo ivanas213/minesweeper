@@ -20,7 +20,7 @@ class CellStyles {
      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 4, 0.3, 0, 1);
    """
   val Flagged: String = HiddenCell
-  val SelectedToClear = s"""
+  val SelectedRectangle = s"""
      -fx-background-color: linear-gradient(to bottom, ${Colors.VeryLightBlue}, ${Colors.LightBlue});
      -fx-background-radius: 4;
      -fx-border-color: ${Colors.Border};
@@ -28,7 +28,24 @@ class CellStyles {
      -fx-border-width: 0.8;
      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 4, 0.3, 0, 1);
    """
+  val SelectedPicture = s"""
+     -fx-background-color: linear-gradient(to bottom, ${Colors.VeryLightBlue2}, ${Colors.VeryLightBlue3});
+     -fx-background-radius: 4;
+     -fx-border-color: ${Colors.Border};
+     -fx-border-radius: 4;
+     -fx-border-width: 0.8;
+     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 4, 0.3, 0, 1);
+   """
   val Pivot = s"""
+     -fx-background-color: linear-gradient(to bottom, ${Colors.LightOrange}, ${Colors.Orange});
+     -fx-background-radius: 4;
+     -fx-border-color: ${Colors.Border};
+     -fx-border-radius: 4;
+     -fx-border-width: 0.8;
+     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 4, 0.3, 0, 1);
+   """
+  val ReflexionAxis =
+    s"""
      -fx-background-color: linear-gradient(to bottom, ${Colors.LightOrange}, ${Colors.Orange});
      -fx-background-radius: 4;
      -fx-border-color: ${Colors.Border};
