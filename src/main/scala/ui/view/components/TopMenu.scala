@@ -12,8 +12,8 @@ class TopMenu(
              onRestart: () => Unit,
              onSaveGame: () => Unit,
              onLoadSaved: () => Unit,
-             onLoadLevel: () => Unit,
              onLoadMoves: () => Unit,
+             onMakeNewLevel: () => Unit,
              getDifficulty: () => Difficulty,
              loadResults: Difficulty => Seq[model.Score]
              ) {
@@ -44,11 +44,11 @@ class TopMenu(
 
       new Menu("Учитај") {
         items = List(
-          new MenuItem("Учитај сачувану игру") {
-            onAction = _ => onLoadSaved()
+          new MenuItem("Направи нови ниво") {
+            onAction = _ => onMakeNewLevel()
           },
-          new MenuItem("Учитај ниво из фајла") {
-            onAction = _ => onLoadLevel()
+          new MenuItem("Настави сачувани ниво") {
+            onAction = _ => onLoadSaved()
           },
           new MenuItem("Одиграј секвенцу потеза") {
             onAction = _ => {

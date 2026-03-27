@@ -14,9 +14,7 @@ enum OverlayMode {
 enum RotationDirection {
   case CW, CCW
 }
-enum TranslationType{
-  case Horizontal, Vertical
-}
+
 enum ReflectionAxis {
   case Vertical(col: Int)
   case Horizontal(row: Int)
@@ -34,7 +32,7 @@ case class Rectangle(startRow: Int, startCol: Int, endRow: Int, endCol: Int) {
     )
 }
 
-case class IsometryApplicationConfiguration(
+case class IsometryConfiguration(
                                              rectangle: Rectangle,
                                              expand: ExpandMode,
                                              overlay: OverlayMode
@@ -56,24 +54,24 @@ sealed trait Isometry {
       val cols = level.cells.head.length
 
       if rect.startRow < 0 || rect.startCol < 0 || rect.endRow >= rows || rect.endCol >= cols then
-        Left(ErrorMessage.selectedRectangleOutOfBounds)
+        Left(s"${ErrorMessage.selectedRectangleOutOfBounds}  ${rect.startRow}  ${rect.startCol}  ${rect.endRow}  ${rect.endCol}  ${rows} ${cols}")
       else
         Right(())
   }
 
   def validate(
                 level: Level,
-                config: IsometryApplicationConfiguration
+                config: IsometryConfiguration
               ): Either[String, Unit]
 
   protected def applyIsometry(
                              level: Level,
-                             config: IsometryApplicationConfiguration
+                             config: IsometryConfiguration
                            ): Level
 
   final def run(
                  level: Level,
-                 config: IsometryApplicationConfiguration
+                 config: IsometryConfiguration
                ): Either[String, Level] =
     validate(level, config).map(_ => applyIsometry(level, config))
 
@@ -107,7 +105,7 @@ case class Rotation90(
 
   override def validate(
                          level: Level,
-                         config: IsometryApplicationConfiguration
+                         config: IsometryConfiguration
                        ): Either[String, Unit] =
     for
       _ <- validateRectangle(level, config.rectangle)
@@ -126,7 +124,7 @@ case class Rotation90(
 
   override protected def applyIsometry(
                                       level: Level,
-                                      config: IsometryApplicationConfiguration
+                                      config: IsometryConfiguration
                                     ): Level =
     IsometryApplier.apply(
       level,
@@ -146,7 +144,7 @@ case class Reflection(axis: ReflectionAxis) extends Isometry {
 
   override def validate(
                          level: Level,
-                         config: IsometryApplicationConfiguration
+                         config: IsometryConfiguration
                        ): Either[String, Unit] =
     for
       _ <- validateRectangle(level, config.rectangle)
@@ -199,7 +197,7 @@ case class Reflection(axis: ReflectionAxis) extends Isometry {
 
   override protected def applyIsometry(
                                       level: Level,
-                                      config: IsometryApplicationConfiguration
+                                      config: IsometryConfiguration
                                     ): Level =
     IsometryApplier.apply(
       level,
@@ -219,60 +217,21 @@ case class CompositeIsometry(steps: List[Isometry]) extends Isometry {
 
   override def validate(
                          level: Level,
-                         config: IsometryApplicationConfiguration
+                         config: IsometryConfiguration
                        ): Either[String, Unit] =
-    validateAll(level, config, steps)
+    validateRectangle(level, config.rectangle)
 
   override protected def applyIsometry(
-                                      level: Level,
-                                      config: IsometryApplicationConfiguration
-                                    ): Level =
-    runSteps(level, config, steps).getOrElse(level)
-
-  private def validateAll(
-                             currentLevel: Level,
-                             currentConfig: IsometryApplicationConfiguration,
-                             remaining: List[Isometry]
-                           ): Either[String, Unit] =
-    remaining match
-      case Nil =>
-        Right(())
-
-      case head :: tail =>
-        for
-          _ <- head.validate(currentLevel, currentConfig)
-          newLevel <- head.run(currentLevel, currentConfig)
-          newRectangle <- getNewRectangle(
-            currentLevel,
-            currentConfig.rectangle,
-            head,
-            currentConfig.expand
-          )
-          newConfig = currentConfig.copy(rectangle = newRectangle)
-          _ <- validateAll(newLevel, newConfig, tail)
-        yield ()
-
-  private def runSteps(
-                        currentLevel: Level,
-                        currentConfig: IsometryApplicationConfiguration,
-                        remaining: List[Isometry]
-                      ): Either[String, Level] =
-    remaining match
-      case Nil =>
-        Right(currentLevel)
-
-      case head :: tail =>
-        for
-          newLevel <- head.run(currentLevel, currentConfig)
-          newRectangle <- getNewRectangle(
-            currentLevel,
-            currentConfig.rectangle,
-            head,
-            currentConfig.expand
-          )
-          newConfig = currentConfig.copy(rectangle = newRectangle)
-          result <- runSteps(newLevel, newConfig, tail)
-        yield result
+                                        level: Level,
+                                        config: IsometryConfiguration
+                                      ): Level =
+    IsometryApplier.apply(
+      level,
+      config,
+      (row, col) => mapPoint(row, col)
+    )
+  
+  
 
   private def getNewRectangle(
                                level: Level,
@@ -336,6 +295,8 @@ case class CompositeIsometry(steps: List[Isometry]) extends Isometry {
 object CompositeIsometry {
   def apply(first: Isometry, second: Isometry, rest: Isometry*): CompositeIsometry =
     CompositeIsometry((first +: second +: rest).toList)
+
+  
 }
 
 object CentralSymmetry {
@@ -347,11 +308,15 @@ object CentralSymmetry {
 object TranslationHorizontal {
   def apply(shift: Int): Isometry =
     Reflection(ReflectionAxis.Vertical(0))
-      .chain(Reflection(ReflectionAxis.Vertical(shift / 2)))
+      .chain(Reflection(ReflectionAxis.Vertical(shift)))
 }
 
 object TranslationVertical {
   def apply(shift: Int): Isometry =
     Reflection(ReflectionAxis.Horizontal(0))
-      .chain(Reflection(ReflectionAxis.Horizontal(shift / 2)))
+      .chain(Reflection(ReflectionAxis.Horizontal(shift)))
+}
+object Translation {
+  def apply(shiftHorizontal: Int, shiftVertical:Int): Isometry =
+    TranslationHorizontal(shiftHorizontal).chain(TranslationVertical(shiftVertical))
 }

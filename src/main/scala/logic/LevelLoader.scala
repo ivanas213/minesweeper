@@ -1,10 +1,11 @@
 package logic
 //
-import model.{Beginner, Board, Bomb, Cell, CellStatus, CellType, Difficulty, Empty, Expert, Hidden, Intermediate, Level, Mine}
+import model.{Beginner, Board, Bomb, Cell, CellStatus, CellType, Difficulty, Empty, Expert, Hidden, Intermediate, Level, LevelParameters, Mine}
 
 import java.io.{File, PrintWriter}
 import scala.math.Numeric.Implicits.*
 import scala.io.Source
+import scala.util.Random
 
 object LevelLoader{
 
@@ -45,8 +46,8 @@ object LevelLoader{
     Board(cells, statuses, difficulty)
   }
   
-  def loadLevel(path: String): Level = { // TODO mozda videti nesto da moze i prazan nivo
-    val lines = Source.fromFile(path).getLines().toVector // TODO videti za ovo sto nije closed i ovde i na drugom mestu gde ima
+  def loadLevel(path: String): Level = {
+    val lines = Source.fromFile(path).getLines().toVector
     if (lines.isEmpty)
       throw new Exception("Level file can't be empty")
     val rows = lines.length
@@ -76,17 +77,19 @@ object LevelLoader{
       && mineRatio >= difficulty.minMineRatio
       && mineRatio <= difficulty.maxMineRatio
     }
+  def getRandomLevel(levels: Vector[LevelParameters]): LevelParameters = levels(Random.nextInt(levels.length))
 
   def getDifficulty(rows: Int, cols: Int): Difficulty = {
-    if rows >= Beginner.minRows && rows <= Beginner.maxRows then
+    if rows >= Beginner.minRows && rows <= Beginner.maxRows && cols >= Beginner.minCols && cols <= Beginner.maxCols then
       Beginner
-    else if rows >= Intermediate.minRows && rows <= Intermediate.maxRows then
+    else if rows >= Intermediate.minRows && rows <= Intermediate.maxRows && cols >= Intermediate.minCols && cols <= Intermediate.maxCols  then
       Intermediate
-    else if rows >= Expert.minRows && rows <= Expert.maxRows then
+    else if rows >= Expert.minRows && rows <= Expert.maxRows && cols >= Expert.minCols && cols <= Expert.maxCols then
       Expert
     else
-      throw Exception("Unknown difficulty " + rows)
+      throw Exception("Unknown difficulty " + rows + cols)
   }
+  def getLevelsByDifficulty(difficulty: Difficulty): Vector[LevelParameters] = difficulty.levels
   def saveLevel(level: Level, name: String): Unit = {
     def folder = level.difficulty match
       case Beginner => "beginner"

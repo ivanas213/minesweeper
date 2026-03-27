@@ -1,16 +1,16 @@
 package logic.controllers
 
 import logic.*
-import logic.TranslationType.{Horizontal, Vertical}
 import model.{Bomb, Empty, Level}
 import ui.view.{EmptyLevelCellView, LevelCellView, MineLevelCellView}
 
 class LevelController(path: String) {
 
   private var level: Level = LevelLoader.loadLevel(path)
+  def getLevel: Level = level
   def rows: Int = level.rows
   def cols: Int = level.cols
-  var savedIsometries: Map[String, Isometry] = Map.empty
+  private var savedIsometries: Map[String, Isometry] = Map.empty
   private var currentIsometry: Option[Isometry] = None
   private var currentIsometryNames: List[String] = List.empty
   def isLevelValid: Boolean =
@@ -38,15 +38,16 @@ class LevelController(path: String) {
   }
   def applyRotation(startRow: Int, startCol: Int, endRow: Int, endCol: Int, expandMode: ExpandMode, overlay: OverlayMode, pivotRow: Int, pivotCol: Int, rotationDirection: RotationDirection, quasiInverse: Boolean): Unit ={
     val rectangle = Rectangle(startRow, startCol, endRow, endCol)
-    val config = IsometryApplicationConfiguration(rectangle, expandMode, overlay)
+    val config = IsometryConfiguration(rectangle, expandMode, overlay)
     val isometry =
       if !quasiInverse then Rotation90(rotationDirection, (pivotRow, pivotCol))
       else Rotation90(rotationDirection, (pivotRow, pivotCol)).quasiInverse
-    level = isometry.run(level, config) match
-      case Right(newLevel) => newLevel
-      case Left(_) => level
+    level = runIsommetry(isometry, level, config)
       
   }
+  private def runIsommetry(isometry: Isometry, level: Level, config: IsometryConfiguration): Level = isometry.run(level, config) match
+    case Right(newLevel) => newLevel
+    case Left(_) => level
   def addRotation(pivotRow: Int, pivotCol: Int, rotationDirection: RotationDirection): Unit ={
     addToCurrentIsometry(logic.Rotation90(rotationDirection, (pivotRow, pivotCol)))
     currentIsometryNames = currentIsometryNames :+ s"Ротација за 90 степени око тачке (${pivotRow}, ${pivotCol})"
@@ -56,14 +57,12 @@ class LevelController(path: String) {
     else if col.isDefined then ReflectionAxis.Vertical(col.get)
     else if diagonal1.isDefined then ReflectionAxis.DiagonalMain(diagonal1.get._1, diagonal1.get._2)
     else if diagonal2.isDefined then ReflectionAxis.DiagonalSecondary(diagonal2.get._1, diagonal2.get._2)
-    else throw new NotImplementedError()
+    else return
     val rectangle = Rectangle(startRow, startCol, endRow, endCol)
-    val config = IsometryApplicationConfiguration(rectangle, expandMode, overlayMode)
+    val config = IsometryConfiguration(rectangle, expandMode, overlayMode)
     val isometry = if !quasiInverse then Reflection(reflectionAxis)
     else Reflection(reflectionAxis).quasiInverse
-    level = isometry.run(level, config) match
-      case Right(newLevel) => newLevel
-      case Left(_) => level
+    level = runIsommetry(isometry, level, config)
   }
   def addReflection(row: Option[Int], col: Option[Int], diagonal1: Option[(Int, Int)], diagonal2: Option[(Int, Int)]): Unit = {
     val reflectionAxis = if row.isDefined then
@@ -83,14 +82,12 @@ class LevelController(path: String) {
     addToCurrentIsometry(logic.Reflection(reflectionAxis))
   }
 
-  def applyCentralSymmetry(startRow: Int, startCol: Int, endRow: Int, endCol: Int, expandMode: ExpandMode, overlay: OverlayMode, pivotRow: Int, pivotCol: Int, rotationDirection: RotationDirection, quasiInverse: Boolean): Unit = {
+  def applyCentralSymmetry(startRow: Int, startCol: Int, endRow: Int, endCol: Int, expandMode: ExpandMode, overlay: OverlayMode, pivotRow: Int, pivotCol: Int, quasiInverse: Boolean): Unit = {
     val rectangle = Rectangle(startRow, startCol, endRow, endCol)
-    val config = IsometryApplicationConfiguration(rectangle, expandMode, overlay)
+    val config = IsometryConfiguration(rectangle, expandMode, overlay)
     val isometry = if !quasiInverse then CentralSymmetry(pivotRow, pivotCol)
     else CentralSymmetry(pivotRow, pivotCol).quasiInverse
-    level = isometry.run(level, config) match
-      case Right(newLevel) => newLevel
-      case Left(_) => level
+    level = runIsommetry(isometry, level, config)
   }
 
   def getSavedIsometries: List[Isometry] =
@@ -103,37 +100,18 @@ class LevelController(path: String) {
   }
   def applyTranslation(startRow: Int, startCol: Int, endRow: Int, endCol: Int, newStartRow: Int, newStartCol: Int, expandMode: ExpandMode, overlay: OverlayMode, quasiInverse: Boolean): Unit = {
     val rectangle = Rectangle(startRow, startCol, endRow, endCol).normalize()
-    val config = IsometryApplicationConfiguration(rectangle, expandMode, overlay)
-    if newStartRow != rectangle.startRow && newStartCol != rectangle.startCol then
-      print(newStartRow, startRow, newStartCol, startCol)
-      return
-    if newStartRow == rectangle.startRow then
-      val shift = (rectangle.startCol + newStartCol) / 2
-      val isometry = if !quasiInverse then TranslationHorizontal(shift)
-      else TranslationHorizontal(shift).quasiInverse
-      level = isometry.run(level, config) match
-          case Right(newLevel) => newLevel
-          case Left(greska) =>
-            print(greska)
-            level
-    else
-      val shift = (rectangle.startRow + newStartRow) / 2
-      val isometry = if !quasiInverse then TranslationVertical(shift)
-      else TranslationVertical(shift).quasiInverse
-      level = isometry.run(level, config) match
-          case Right(newLevel) => newLevel
-          case Left(greska) =>
-            print(greska)
-            level
+    val config = IsometryConfiguration(rectangle, expandMode, overlay)
+    val shiftHorizontal = (newStartCol - rectangle.startCol) / 2
+    val shiftVertical = (newStartRow - rectangle.startRow) / 2
+    val isometry = if !quasiInverse then Translation(shiftHorizontal, shiftVertical)
+    else Translation(shiftHorizontal, shiftVertical).quasiInverse
+    level = runIsommetry(isometry, level, config)
+
+
   }
-  def addTranslation(translationType: TranslationType, shift: Int): Unit = {
-    translationType match
-      case Horizontal =>
-        addToCurrentIsometry(TranslationHorizontal(shift))
-        currentIsometryNames = currentIsometryNames :+ s"Хоризонтална транслација за померај ${shift}"
-      case Vertical =>
-        addToCurrentIsometry(TranslationVertical(shift))
-        currentIsometryNames = currentIsometryNames :+ s"Вертикална транслација за померај ${shift}"
+  def addTranslation(shiftRows: Int, shiftCols: Int): Unit = {
+    addToCurrentIsometry(Translation(shiftRows, shiftCols))
+    currentIsometryNames = currentIsometryNames :+ s"Транслација за померај (${shiftRows}, ${shiftCols})"
 
   }
 
@@ -163,7 +141,6 @@ class LevelController(path: String) {
         savedIsometries += (name -> isometry)
       case None =>
         ()
-    print(savedIsometries.toString)
   }
 
   def applySavedIsometry(
@@ -179,14 +156,13 @@ class LevelController(path: String) {
     savedIsometries.get(name) match
       case Some(isometry) =>
         val rectangle = Rectangle(startRow, startCol, endRow, endCol)
-        val config = IsometryApplicationConfiguration(rectangle, expandMode, overlayMode)
-        val finalIsometry = if quasiInverse then isometry
+        val config = IsometryConfiguration(rectangle, expandMode, overlayMode)
+        val finalIsometry = if !quasiInverse then isometry
         else isometry.quasiInverse
-        level = finalIsometry.run(level, config) match
-          case Right(newLevel) => newLevel
-          case Left(_) => level
+        level = runIsommetry(finalIsometry, level, config)
 
       case None =>
         ()
   }
+
 }

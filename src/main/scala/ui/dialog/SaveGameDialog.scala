@@ -18,7 +18,7 @@ class SaveGameDialog(onSave: String => Unit) {
     }
 
     val nameField = new TextField {
-      promptText = "Унесите назив игре"
+      promptText = "Унеси назив игре"
       minWidth = 240
     }
 

@@ -3,19 +3,20 @@ package logic
 import model.{Beginner, Difficulty, Expert, Intermediate}
 
 import java.io.{File, PrintWriter}
-import java.io.{File, PrintWriter}
 import scala.io.Source
 
 class ScoreSaverLoader {
-
+  
+  private def getDifficultyLetter(difficulty: Difficulty) = difficulty match
+    case Beginner => "B"
+    case Intermediate => "I"
+    case Expert => "E"
+  
   def loadResults(difficulty: Difficulty): Seq[model.Score] = {
     val dir = new File("results")
     if (!dir.exists()) dir.mkdir()
 
-    val suffix = difficulty match
-      case Beginner => "B"
-      case Intermediate => "I"
-      case Expert => "E"
+    val suffix = getDifficultyLetter(difficulty)
 
     val file = new File(s"results/leaderboard_$suffix.json")
     if (!file.exists()) return Seq.empty
@@ -42,10 +43,7 @@ class ScoreSaverLoader {
     val dir = new File("results")
     if (!dir.exists()) dir.mkdir()
 
-    val suffix = difficulty match
-      case Beginner => "B"
-      case Intermediate => "I"
-      case Expert => "E"
+    val suffix = getDifficultyLetter(difficulty)
 
     val file = new File(s"results/leaderboard_$suffix.json")
 

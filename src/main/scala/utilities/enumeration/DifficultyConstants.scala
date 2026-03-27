@@ -14,8 +14,8 @@ case object BeginnerConstants extends DifficultyConstants {
   override val maxRows = 9
   override val minColumns = 5
   override val maxColumns = 9
-  override val minMineRatio = 10
-  override val maxMineRatio = 15
+  override val minMineRatio = 12
+  override val maxMineRatio = 18
 }
 
 case object IntermediateConstants extends DifficultyConstants {
@@ -36,5 +36,3 @@ case object ExpertConstants extends DifficultyConstants {
   override val maxMineRatio = 25
 }
 
-// TODO uvek su pravougane pa mozda je suvisno imati i rows i cols u konstantama
-// TODO proveriti da li su mi svi nivoi u opsegu i mozda popraviti min broj redova na 5

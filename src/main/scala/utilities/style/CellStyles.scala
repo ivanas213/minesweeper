@@ -14,6 +14,24 @@ class CellStyles {
      -fx-background-radius: 4;
      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 4, 0.3, 0, 1);
    """
+  val MineLevel: String =
+    """
+      |-fx-background-color: linear-gradient(to bottom, #f7f8fb, #e9edf3);
+      |-fx-background-radius: 10;
+      |-fx-border-radius: 10;
+      |-fx-border-color: #cfd6de;
+      |-fx-border-width: 1;
+      |-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.09), 6, 0.2, 0, 1);
+      |""".stripMargin
+  val EmptyLevel: String =
+    """
+      |-fx-background-color: linear-gradient(to bottom, #fcfcfd, #eef1f4);
+      |-fx-background-radius: 10;
+      |-fx-border-radius: 10;
+      |-fx-border-color: #d5dbe3;
+      |-fx-border-width: 1;
+      |-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 5, 0.18, 0, 1);
+      |""".stripMargin
   val Mine = s"""
      -fx-background-color: linear-gradient(to bottom, ${Colors.Red1}, ${Colors.Red2});
      -fx-background-radius: 4;

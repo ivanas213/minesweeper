@@ -1,11 +1,12 @@
 package logic
 
-import model.{Beginner, Board, Cell, CellStatus, Expert, Flagged, GameState, Hidden, Intermediate, Mine, Number, Revealed}
+import model.{Beginner, Board, Cell, CellStatus, Expert, Flagged, GameState, Hidden, Intermediate, LevelParameters, Mine, Number, Revealed}
 
 import java.io.{File, PrintWriter}
 import scala.io.Source
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import scala.util.Random
 
 object GameSaverLoader {
   private def serializeBoardCells(board: Board): String =
@@ -18,7 +19,7 @@ object GameSaverLoader {
         board.cellAt(row, col) match
           case Some(Number(value)) => s"${value.toString}"
           case Some(Mine)          => "#"
-          case _ => throw new Exception("Invalid cell")
+          case _ => throw new Exception()
       }).mkString("")
     }).mkString("\n")
 
@@ -34,7 +35,7 @@ object GameSaverLoader {
           case Some(Hidden) => "H"
           case Some(Flagged) => "F"
           case Some(Revealed) => "R"
-          case None => throw new Exception() // TODO
+          case None => throw new Exception() 
       }).mkString("")
     }).mkString("\n")
 
@@ -54,7 +55,6 @@ object GameSaverLoader {
         case Beginner => "B"
         case Intermediate => "I"
         case Expert => "E"
-        case _ => throw new Exception("Unknown difficulty")
         
     val json =
       s"""
@@ -76,7 +76,6 @@ object GameSaverLoader {
     writer.write(json)
     writer.close()
   }
-
 
   def getSavedGamesNames: Seq[(String, LocalDateTime)] = {
     val dir = new File("saved")
@@ -196,4 +195,3 @@ object GameSaverLoader {
 
 
 }
-// TODO srediti ovaj load da bude lepsi

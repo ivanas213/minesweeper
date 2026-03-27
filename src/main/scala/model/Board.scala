@@ -66,12 +66,12 @@ case class Board (
   }
 
   def getSafeCell: Option[(Int, Int)] = {
-    val revealed = getAllRevealed // niz svih celija koje su otkrivene
+    val revealed = getAllRevealed 
 
-    for ((r, c) <- revealed) { // prolazimo kroz sve
+    for ((r, c) <- revealed) { 
 
-      val minesAround = neighborMines(r, c) // racunamo koliko ima mina okolo
-      val flaggedAround = getFlaggedNeighborsCount(r, c) // racunamo koliko ima flegova okolo
+      val minesAround = neighborMines(r, c) 
+      val flaggedAround = getFlaggedNeighborsCount(r, c) 
 
       if (minesAround == flaggedAround) {
 
@@ -125,37 +125,37 @@ case class Board (
   }
   
   def getMaybeSafeCell: Option[(Int, Int)] = {
-    val f = flagsLeft // koliko je zastavica ostalo
-    val c = countMines // koliko ukupno ima mina
-    var defaultProbability: Double = flagsLeft.toDouble / getAllHiddenCount // defaultna verovatnoca nam je kolicnik preostalih zastavica i svih skrivenih polja
-    if defaultProbability < 0 then // moze se desiti da je manja od nula ako korisnik ne igra dobro i iskoristi vise zastavica nego sto treba
-      defaultProbability = 0.1 // TODO videti sta raditi u ovom slucaju, da li staviti na 0.1, da li na neku drugu vrednost ili zabraniti taj slucaj ogranicivsi broj mogucih zastavica na broj mina
-    val hidden = getAllHidden // sva skrivena polja, za svako cemo racunati verovatnocu da je mina tako sto izracunamo verovatnocu na osnovu suseda koji su otvoreni i uzeti najvecu mogucu verovatnocu ili defaultn-u verovatnocu ako nema otvorenih suseda
+    val f = flagsLeft 
+    val c = countMines 
+    var defaultProbability: Double = flagsLeft.toDouble / getAllHiddenCount 
+    if defaultProbability < 0 then 
+      defaultProbability = 0.1 
+    val hidden = getAllHidden 
     val probs = hidden.map {
       case (r, c) =>
-        val revealedNeighbors = // ovde cuvamo sve otkrivene susede
+        val revealedNeighbors = 
           neighbors(r, c).filter { case (nr, nc) =>
             cellStatusAt(nr, nc).contains(Revealed)   
           }
-        val prob: Double = // ovde cemo sacuvati verovatnocu za polje na osnovu tih otkrivenih suseda
-          if (revealedNeighbors.isEmpty) { // ako nema otkrivenih suseda, onda default verovatnoca
+        val prob: Double = 
+          if (revealedNeighbors.isEmpty) { 
             defaultProbability 
           }
           else {
-            revealedNeighbors.map { // ako ima biramo najvecu mogucu verovatnocu
+            revealedNeighbors.map { 
               case (nr, nc) =>
-                val remainingMines = neighborMines(nr, nc) - getFlaggedNeighborsCount(nr, nc) // za suseda racunamo koliko mina mu nije otkriveno na osnovu flegovanih polja polazivsi od njegove pretpostavke gde su mine na osnovu flagova
+                val remainingMines = neighborMines(nr, nc) - getFlaggedNeighborsCount(nr, nc) 
                 val hiddenNeighbors =
-                  getHiddenNeighborsCount(nr, nc) // koliko ukupno sused ima skrivenih suseda
-                remainingMines.toDouble / hiddenNeighbors max 1 // preostale mine kroz svi skriveni susedi daje verovatnocu naseg polja da je mina
+                  getHiddenNeighborsCount(nr, nc) 
+                remainingMines.toDouble / hiddenNeighbors max 1 
 
-            }.max // biramo max verovatnocu da bismo bili sto sigurniji
+            }.max 
           }
-        ((r, c), prob) // cuvamo polje i njegovu verovatnocu  koju smo dobili
+        ((r, c), prob) 
 
     }
-    val minProb = probs.map(_._2).minOption // biramo polja sa najmanjom verovatnocom
-    minProb.flatMap { r => // ako ih ima vise biramo random
+    val minProb = probs.map(_._2).minOption 
+    minProb.flatMap { r => 
       val safest = probs.filter(_._2 == r).map(_._1)
       Random.shuffle(safest).headOption
     }

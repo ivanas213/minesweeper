@@ -14,16 +14,16 @@ class SaveLevelDialog(
   def show(): Unit = {
 
     val stage = new Stage {
-      title = "Сачувај резултат"
+      title = "Чување нивоа"
       initModality(Modality.ApplicationModal)
     }
 
     val name = new TextField {
-      promptText = "назив игре"
+      promptText = "назив нивоа"
       minWidth = 260
     }
 
-    val save = new Button("Сачувајте игру") {
+    val save = new Button("Сачувај ниво") {
       minWidth = 260
       minHeight = 42
       font = Font.font(15)
@@ -48,7 +48,7 @@ class SaveLevelDialog(
       children = Seq(
 
        
-        new Label("Унесите назив игре") {
+        new Label("Унесите назив нивоа") {
           font = Font.font(14)
         },
 

@@ -88,7 +88,7 @@ class ShowResultsDialog(initialDifficulty: Difficulty, loadResults: Difficulty =
       alignment = Pos.Center
 
       children = Seq(
-        new Label("🏆 Топ 5 резултата") {
+        new Label("Топ 5 резултата") {
           font = Font.font(20)
         },
         difficultyBox,

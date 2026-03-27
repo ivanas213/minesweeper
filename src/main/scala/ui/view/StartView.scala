@@ -49,7 +49,7 @@ class StartView(
         children = Seq(
           icon,
 
-          new Label("МИНЕ") { // TODO smisliti lepo ime
+          new Label("МИНЕ") { 
             font = Font.font(26)
             style = "-fx-text-fill: #0d47a1;"
           },

@@ -3,9 +3,6 @@ package ui.view
 import scalafx.geometry.Pos
 import scalafx.scene.control.{Button, Label, ScrollPane}
 import scalafx.scene.layout.VBox
-import utilities.style.ButtonStyles
-
-import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -144,4 +141,3 @@ class SelectSavedGameView(
   }
 } 
 
-// TODO sve ove stilove lepo prepakovati, duplikata da nema, sve srediti

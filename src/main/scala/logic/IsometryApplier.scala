@@ -39,7 +39,7 @@ object IsometryApplier {
                       mappedMinesRaw: Vector[(Int, Int)],
                       mappedEmptiesRaw: Vector[(Int, Int)],
                       level: Level,
-                      config: IsometryApplicationConfiguration
+                      config: IsometryConfiguration
                     ): (Level, Int, Int) = {
     val allCells = mappedMinesRaw ++ mappedEmptiesRaw
 
@@ -82,7 +82,7 @@ object IsometryApplier {
 
   def apply(
              level: Level,
-             config: IsometryApplicationConfiguration,
+             config: IsometryConfiguration,
              mappingFunction: (Int, Int) => (Int, Int)
            ): Level = {
     val rows = level.rows

@@ -3,8 +3,7 @@ package ui.view
 import logic.ExpandMode.NonExpanding
 import logic.OverlayMode.{Opaque, Transparent}
 import logic.RotationDirection.{CCW, CW}
-import logic.TranslationType.Horizontal
-import logic.{ExpandMode, OverlayMode, RotationDirection, TranslationType}
+import logic.{ExpandMode, OverlayMode, RotationDirection}
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.control.{Button, ComboBox, Label, TextField}
 import scalafx.scene.image.ImageView
@@ -55,18 +54,19 @@ class LevelView(
                  isValid: () => Boolean,
                  onApplyRotation: (Int, Int, Int, Int, ExpandMode, OverlayMode, Int, Int, RotationDirection, Boolean) => Unit,
                  onApplyReflection: (Int, Int, Int, Int, Option[Int], Option[Int], Option[(Int, Int)], Option[(Int, Int)], ExpandMode, OverlayMode, Boolean) => Unit,
-                 onApplyCentralSymmetry: (Int, Int, Int, Int, ExpandMode, OverlayMode, Int, Int, RotationDirection, Boolean) => Unit,
+                 onApplyCentralSymmetry: (Int, Int, Int, Int, ExpandMode, OverlayMode, Int, Int, Boolean) => Unit,
                  onApplyTranslation: (Int, Int, Int, Int, Int, Int, ExpandMode, OverlayMode, Boolean) => Unit,
                  onAddRotation: (Int, Int, RotationDirection) => Unit,
                  onAddReflection: (Option[Int], Option[Int], Option[(Int, Int)], Option[(Int, Int)]) => Unit,
                  onAddCentralSymmetry: (Int, Int) => Unit,
-                 onAddTranslation: (TranslationType, Int) => Unit,
+                 onAddTranslation: (Int, Int) => Unit,
                  isometryStepNames: () => List[String],
                  onSaveCustomIsometry: String => Unit,
                  savedIsometryNames: () => List[String],
                  onApplySavedIsometry: (String, Int, Int, Int, Int, ExpandMode, OverlayMode, Boolean) => Unit,
-                 resetSelectedIsometry: () => Unit
-                 //, onBack: () => Unit
+                 resetSelectedIsometry: () => Unit,
+                 onResize: () => Unit,
+                 onBack: () => Unit
                ) {
 
 
@@ -86,8 +86,8 @@ class LevelView(
   private val quasiInverse = ObjectProperty[Boolean](false)
   private var original: Option[Rectangle] = None
   private var pictureStart: Option[(Int, Int)] = None
-  private var translationType: TranslationType = TranslationType.Horizontal
-  private var translationShift: Option[Int] = None
+  private var translationShiftRows: Option[Int] = None
+  private var translationShiftCols: Option[Int] = None
   private var selectedSavedIsometryName: Option[String] = None
   private def selectedStyle: String = ButtonStyles.ButtonMouseEntered
   private def unselectedStyle: String = ButtonStyles.ButtonClassic
@@ -120,11 +120,11 @@ class LevelView(
           case Some(pictureStartRow, pictureStartCol) =>
             val startR = Math.min(startRow, endRow)
             val startC = Math.min(startCol, endCol)
-            (startR == pictureStartRow || startC == pictureStartCol) &&  ((startR - pictureStartRow)  % 2 == 0 && (startC - pictureStartCol) % 2 == 0)
+            ((startR - pictureStartRow)  % 2 == 0 && (startC - pictureStartCol) % 2 == 0)
       case None =>
         false
   private def canApplyTranslationAdd: Boolean =
-    pictureStart.isDefined
+    translationShiftRows.isDefined || translationShiftCols.isDefined
 
 
   private def canApplyReflection: Boolean =
@@ -161,7 +161,6 @@ class LevelView(
       case Some(_) =>
   }
   private def showSelectedOriginalAndPicture(buttons: Array[Array[ButtonCell]]): Unit = {
-    print(original.toString, pictureStart.toString)
     original match
       case None =>
         pictureStart match
@@ -231,7 +230,7 @@ class LevelView(
       setState(LevelEditState.DefaultIsometry)
     },
     operationButton("Назад") {
-      setState(LevelEditState.ChooseOperationType)
+      onBack()
     },
     saveButton
   )
@@ -632,7 +631,7 @@ class LevelView(
       disable = !canApplyCentralSymmetry
 
       onAction = _ => {
-        onApplyCentralSymmetry(rectangle.get.startRow, rectangle.get.startCol, rectangle.get.endRow, rectangle.get.endCol, expandMode.value, overlayMode.value, rotationPivot.get._1, rotationPivot.get._2, rotationDirection.value, quasiInverse.value)
+        onApplyCentralSymmetry(rectangle.get.startRow, rectangle.get.startCol, rectangle.get.endRow, rectangle.get.endCol, expandMode.value, overlayMode.value, rotationPivot.get._1, rotationPivot.get._2, quasiInverse.value)
         resetAllStates()
       }
     }
@@ -725,6 +724,7 @@ class LevelView(
 
       onAction = _ => {
         onApplyTranslation(original.get.startRow, original.get.startCol, original.get.endRow, original.get.endCol, pictureStart.get._1, pictureStart.get._2, expandMode.value, overlayMode.value, quasiInverse.value)
+        resetSelectedIsometry()
         resetAllStates()
       }
     }
@@ -768,7 +768,7 @@ class LevelView(
       new Label("Изаберите режим:") {
         font = Font.font(14)
       },
-      new Label("Дозвољено је померити правоугаони сектор за паран број врста или колоне") {
+      new Label("Дозвољено је померити правоугаони сектор за паран број врста/колона") {
         font = Font.font(10)
       },
 
@@ -817,58 +817,80 @@ class LevelView(
 
   private def translationSidePanelAdd(): Seq[javafx.scene.Node] = {
 
-    val rowsButton = new Button("Редови") {
-      minWidth = 100
-      style =
-        if translationType == TranslationType.Vertical then selectedStyle
-        else unselectedStyle
+//    val rowsButton = new Button("Редови") {
+//      minWidth = 100
+//      style =
+//        None
+//
+////      onAction = _ => {
+////        translationType = TranslationType.Vertical
+////        updateSidePanel()
+////      }
+//    }
 
-      onAction = _ => {
-        translationType = TranslationType.Vertical
-        updateSidePanel()
-      }
-    }
-
-    val colsButton = new Button("Колоне") {
-      minWidth = 100
-      style =
-        if translationType == TranslationType.Horizontal then selectedStyle
-        else unselectedStyle
-
-      onAction = _ => {
-        translationType = TranslationType.Horizontal
-        updateSidePanel()
-      }
-    }
+//    val colsButton = new Button("Колоне") {
+//      minWidth = 100
+//      style =
+//        None
+//
+//      onAction = _ => {
+//        translationType = TranslationType.Horizontal
+//        updateSidePanel()
+//      }
+//    }
 
     val addTranslationButton = new Button("Примени") {
       minWidth = 160
       style = ButtonStyles.ButtonClassic
-      disable = translationShift.isEmpty
+      disable = translationShiftRows.isEmpty && translationShiftCols.isEmpty
 
       onAction = _ => {
-        onAddTranslation(translationType, translationShift.get)
+        onAddTranslation(translationShiftRows.get, translationShiftCols.get)
         setState(LevelEditState.AddNewIsometry)
         updateSidePanel()
       }
     }
 
-    val shiftTextField = new TextField {
-      promptText = "Број помераја"
+    val shiftRowsTextField = new TextField {
+      promptText = "Редови"
       prefWidth = 160
-      text = translationShift.map(_.toString).getOrElse("")
+      text = translationShiftRows.map(_.toString).getOrElse("")
 
       text.onChange { (_, _, newValue) =>
-        val filtered = newValue.filter(_.isDigit)
+        val filtered = newValue.zipWithIndex
+          .filter { case (ch, i) => ch.isDigit || (ch == '-' && i == 0) }
+          .map(_._1)
+          .mkString
 
         if filtered != newValue then
           text.value = filtered
         else
-          translationShift =
+          translationShiftRows =
             if filtered.nonEmpty then Some(filtered.toInt)
             else None
 
-        addTranslationButton.disable = translationShift.isEmpty
+        addTranslationButton.disable = translationShiftRows.isEmpty && translationShiftCols.isEmpty
+      }
+    }
+    val shiftColsTextField = new TextField {
+      promptText = "Колоне"
+      prefWidth = 160
+      text = translationShiftCols.map(_.toString).getOrElse("")
+
+      text.onChange { (_, _, newValue) =>
+        val filtered = newValue.zipWithIndex
+          .filter { case (ch, i) => ch.isDigit || (ch == '-' && i == 0) }
+          .map(_._1)
+          .mkString
+
+        if filtered != newValue then
+          text.value = filtered
+        else
+          translationShiftCols =
+            if filtered.nonEmpty then Some(filtered.toInt)
+            else None
+
+        addTranslationButton.disable = translationShiftRows.isEmpty && translationShiftCols.isEmpty
       }
     }
 
@@ -876,22 +898,9 @@ class LevelView(
       new Label("Транслација") {
         font = Font.font(18)
       },
-
-      new Label("Изаберите смер померања") {
-        font = Font.font(14)
-      },
-
-      new HBox(10) {
-        children = Seq(rowsButton, colsButton)
-      },
-
-      new Label("Унесите број помераја") {
-        font = Font.font(14)
-      },
-
-      shiftTextField,
+      shiftRowsTextField,
+      shiftColsTextField,
       addTranslationButton,
-
       operationButton("Назад") {
         setState(LevelEditState.AddNewIsometry)
         resetAllStates()
@@ -911,9 +920,10 @@ class LevelView(
     original = None
     pictureStart = None
     newIsometryNameField.text = ""
-    translationType = TranslationType.Horizontal
-    translationShift = None
-    resetSelectedIsometry()
+    //translationType = TranslationType.Horizontal
+    translationShiftRows = None
+    translationShiftCols = None
+    //resetSelectedIsometry()
     refreshUI()
   }
   private def reflectionSidePanel(): Seq[javafx.scene.Node] = {
@@ -1211,6 +1221,7 @@ class LevelView(
       case AddCentralSymmetry => centralSymmetrySidePanelAdd()
       case LevelEditState.ApplySavedIsometry => applySavedIsometrySidePanel()
     sidePanel.children.setAll(content *)
+    onResize()
   }
 
   updateSidePanel()
@@ -1281,7 +1292,6 @@ class LevelView(
     val rows = getRows()
     val cols = getCols()
     val buttons = setButtons()
-    print("show translation")
     showSelectedOriginalAndPicture(buttons)
   }}
   private def showReflectionSelectedRow(): Unit = {
@@ -1382,15 +1392,15 @@ class LevelView(
   val root: HBox = new HBox {
     spacing = 30
     padding = Insets(20)
+    alignment = Pos.Center
+    fillHeight = false
     children = Seq(grid, sidePanel)
   }
-
   private val newIsometryNameField = new TextField {
     promptText = "Унеси име изометрије"
   }
 
   private def canSaveNewIsometry: Boolean =
-    // TODO da lista nije prazna
     newIsometryNameField.text.value.trim.nonEmpty
 
 
@@ -1487,9 +1497,3 @@ class LevelView(
 
 }
 
-
-
-// TODO mozda da Rectangle ne bude tuple nego npr klasa
-// TODO da malo lepse izgleda ovo uputstvo
-// TODO canapply translation nekad ne radi
-// TODO fale inverzi

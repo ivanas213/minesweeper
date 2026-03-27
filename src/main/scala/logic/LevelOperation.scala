@@ -114,7 +114,7 @@ case object RemoveLastColumn extends LevelOperation{
 case class ClearRectangle(startRow: Int, startCol: Int, endRow: Int, endCol: Int) extends LevelOperation{
   
   override def apply(level: Level): Level = {
-    if level.cells.isEmpty then  // TODO mozda bolje da baca gresku
+    if level.cells.isEmpty then  
       level
     else
       val newCells: Vector[Vector[CellType]] = level.cells.zipWithIndex.map {
@@ -142,5 +142,3 @@ case class ClearRectangle(startRow: Int, startCol: Int, endRow: Int, endCol: Int
  
 }
 
-// TODO videti mozda neke granicne slucajeve npr kada ima samo jedan red i uklanja se on i isto i za kolonu
-// TODO da bude lepse ovo za Exception

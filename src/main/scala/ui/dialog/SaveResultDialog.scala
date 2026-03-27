@@ -53,7 +53,7 @@ class SaveResultDialog(
 
       children = Seq(
 
-        new Label("🎉 Честитамо!") {
+        new Label("Честитамо!") {
           font = Font.font(24)
         },
 

@@ -9,8 +9,9 @@ import scala.util.Random
 
 class SelectLevelView(
                        difficultyName: String,
-                       levels: Vector[LevelParameters],
+                       levels: () => Vector[LevelParameters],
                        onSelect: LevelParameters => Unit,
+                       getRandomLevel: Vector[LevelParameters] => LevelParameters,
                        onBack: () => Unit
                      ) {
 
@@ -32,7 +33,7 @@ class SelectLevelView(
     spacing = 10
     alignment = Pos.TopCenter
 
-    children = levels.map { level =>
+    children = levels().map { level =>
       primaryButton(level.name) {
         onSelect(level)
       }
@@ -78,8 +79,8 @@ class SelectLevelView(
           """
       },
 
-      primaryButton("🎲 Насумично изабран ниво") { // TODO mozda bolje nesto prirodnije od ove kockice
-        onSelect(levels(Random.nextInt(levels.length)))
+      primaryButton("Насумично изабран ниво") { 
+        onSelect(getRandomLevel(levels()))
       },
 
       scrollPane,

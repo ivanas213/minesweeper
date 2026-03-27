@@ -26,18 +26,18 @@ class GameView(
                 onRestart: () => Unit,
                 onSaveGame: String => Unit,
                 onLoadSaved: () => Unit,
-                onLoadLevel: () => Unit,
                 onLoadMoves: File => Unit,
-                onShowResults: () => Unit,
                 getScore: () => Int,
                 getTime: () => Int,
                 getClicks: () => Int,
                 getDifficulty: () => Difficulty,
                 onSaveResult: (Difficulty, String, Int) => Unit,
-                loadResults: Difficulty => Seq[Score]
+                loadResults: Difficulty => Seq[Score],
+                onResize: () => Unit,
+                onMakeNewLevel: () => Unit
               ) {
 
-  def chooseFile(window: Window): Option[File] = {
+  private def chooseFile(window: Window): Option[File] = {
     val fileChooser = new FileChooser {
       title = "Изаберите фајл са потезима"
       extensionFilters.add(
@@ -61,7 +61,7 @@ class GameView(
     topBar.setFlags(flagsLeft())
   }
   def updateTime(time: Int): Unit = topBar.setTime(time)
-  def onLoadMovesWithDialog(): Unit = {
+  private def onLoadMovesWithDialog(): Unit = {
     val file = chooseFile(root.scene().getWindow)
     onLoadMoves(file.get)
     boardView.refreshUI()
@@ -77,7 +77,7 @@ class GameView(
           
       case None => 
   }
-  private val boardView = new BoardView(rows, cols, onLeftClick, onRightClick, getCellView)
+  private val boardView = new BoardView(rows, cols, onLeftClick, onRightClick, getCellView, onResize)
   private val topBar = new TopBar(flagsLeft(), onHint, onRestartAll)
   private def onSave(): Unit ={
     val dialog = new SaveGameDialog(name =>
@@ -91,7 +91,7 @@ class GameView(
     topBar.setFlags(flagsLeft())
     topBar.showHappy()
   }
-  private val menu = new TopMenu(onNewGame, onRestartAll, onSave, onLoadSaved, onLoadLevel, onLoadMovesWithDialog, getDifficulty, loadResults)
+  private val menu = new TopMenu(onNewGame, onRestartAll, onSave, onLoadSaved, onLoadMovesWithDialog, onMakeNewLevel, getDifficulty, loadResults)
   val root: BorderPane = new BorderPane {
     top = new VBox(menu.menuBar, topBar.view)
     center = boardView.grid

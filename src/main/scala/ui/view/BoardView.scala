@@ -9,7 +9,8 @@ class BoardView(
                  cols: Int,
                  onLeft: (Int, Int) => Unit,
                  onRight: (Int, Int) => Unit,
-                 getCellView: (Int, Int) => CellView
+                 getCellView: (Int, Int) => CellView,
+                 onResize: () => Unit
                ) {
   val grid: GridPane = new GridPane
   val buttons: Array[Array[ButtonCell]] =
@@ -60,6 +61,6 @@ class BoardView(
     } {
       updateButton(row, col)
     }
-    
+    onResize()
   }
 }

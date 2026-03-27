@@ -9,12 +9,12 @@ sealed trait LevelCellView (
 )
 
 case class EmptyLevelCellView() extends LevelCellView(
-  style = new CellStyles().HiddenCell,
+  style = new CellStyles().EmptyLevel,
   graphic = None
 )
 
 case class MineLevelCellView() extends LevelCellView(
-  style = new CellStyles().MineToRevealStyle,
+  style = new CellStyles().MineLevel,
   graphic = Some (Graphics().Mine)
 )
 

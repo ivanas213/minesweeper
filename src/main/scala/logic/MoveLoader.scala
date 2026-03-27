@@ -24,7 +24,7 @@ object MoveLoader {
           val col = coordinates(1).toInt - 1
           val moveType =
             if (moveChar == 'L') MoveType.Left
-            else if (moveChar == 'R') MoveType.Right
+            else if (moveChar == 'D') MoveType.Right
             else throw new Exception("Invalid input file")
 
           Move(row, col, moveType)

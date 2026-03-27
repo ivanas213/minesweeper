@@ -8,9 +8,9 @@ import ui.view.*
 import java.io.File
 import scala.compiletime.uninitialized
 
-class GameController(levelPath: Option[String] = None, initialGameState: Option[GameState] = None) {
+class GameController(levelPath: Option[String] = None, initialGameState: Option[GameState] = None, testing: Boolean= false) {
 
-  
+
   private var state: GameState = levelPath match {
     case Some(path) =>
       val board = LevelLoader.loadGame(path)
@@ -20,25 +20,27 @@ class GameController(levelPath: Option[String] = None, initialGameState: Option[
     case None =>
       initialGameState.get
   }
-  private val timer = new GameTimer(seconds =>
-    state = state.copy(time = seconds)
-    if (onTimeChanged != null)
-      onTimeChanged(seconds)
-  )
+
+
+    private val timer = new GameTimer(seconds =>
+      state = state.copy(time = seconds)
+      if (onTimeChanged != null)
+        onTimeChanged(seconds)
+    )
   private val gameSaverLoader = GameSaverLoader
   private var onTimeChanged: Int => Unit = uninitialized
 
   def setOnTimeChanged(callback: Int => Unit): Unit =
     onTimeChanged = callback
 
-  def onLeftClick(row: Int, col: Int): Unit = {
+  def leftClick(row: Int, col: Int): Unit = {
     if (state.status == Playing)
       state = state.revealCell(row, col)
       incrementClicks()
 
   }
 
-  def onRightClick(row: Int, col: Int): Unit = {
+  def rightClick(row: Int, col: Int): Unit = {
     if (state.status == Playing)
       if !state.board.cellStatusAt(row, col).contains(Flagged) then
         decrementFlags()
@@ -49,15 +51,18 @@ class GameController(levelPath: Option[String] = None, initialGameState: Option[
   }
 
   def restart(): Unit = {
-    resetTimer()
-    timer.start()
+    if !testing then
+      resetTimer()
+      timer.start()
     state = levelPath match {
-      // TODO mozda izvuci ipak kao posebnu metodu
       case Some(path) =>
-        val board = LevelLoader.loadGame(path) // TODO ovo bi moglo i malo bolje sig bez da se ucitava i ovde i tamo
+        val board = LevelLoader.loadGame(path)
         val flags = board.countMines
+        if !testing then
+          GameState(board = board, flags = flags, onEnd = () => timer.stop())
+        else
+          GameState(board = board, flags = flags, onEnd = () => ())
 
-        GameState(board = board, flags = flags, onEnd = () => timer.stop())
       case None =>
         initialGameState.get
     }
@@ -67,20 +72,20 @@ class GameController(levelPath: Option[String] = None, initialGameState: Option[
     val moves = MoveLoader.loadMoves(file)
     for (move <- moves) {
       if (move.moveType == MoveType.Left)
-        onLeftClick(move.row, move.col)
+        leftClick(move.row, move.col)
       else
-        onRightClick(move.row, move.col)
+        rightClick(move.row, move.col)
     }
   }
 
   def saveGame(name: String): Unit = gameSaverLoader.saveGame(name, state)
 
   def getTime: Int = state.time
-  
+
   def getClicks: Int = state.clicks
-  
+
   def getScore: Int = state.getScore
-  
+
   def getDifficulty: Difficulty = state.board.difficulty
 
   def getHintCoordinates: Option[(Int, Int)] = {
@@ -131,7 +136,7 @@ class GameController(levelPath: Option[String] = None, initialGameState: Option[
   def rows: Int = state.board.rows
 
   def cols: Int = state.board.cols
-  
+
   def getState: GameState = state
 
   def isLost: Boolean = state.status == Lost
@@ -151,17 +156,19 @@ class GameController(levelPath: Option[String] = None, initialGameState: Option[
 
   private def stopTimer(): Unit = timer.stop()
 
+  if !testing then
+    startTimer()
 
-  timer.resetTo(state.time)
-  timer.start()
-  state = state.copy(onEnd = () => timer.stop())
-  
-  
-  
 
- 
-  
+  private def startTimer(): Unit = {
+    timer.resetTo(state.time)
+    timer.start()
+    state = state.copy(onEnd = () => timer.stop())
+  }
 
-  
-  
+
+
+
+
+
 }

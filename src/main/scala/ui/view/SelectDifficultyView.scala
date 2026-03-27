@@ -8,7 +8,7 @@ import scalafx.scene.layout.VBox
 import scalafx.scene.text.Font
 import utilities.style.{ButtonStyles, Images}
 
-class SelectDifficultyView(onSelect: (difficulty: String, levels:Vector[LevelParameters]) => Unit, levels:  Difficulty => Vector[LevelParameters]) {
+class SelectDifficultyView(onSelect: (difficulty: String, getLevels: () => Vector[LevelParameters]) => Unit, levels:  Difficulty => Vector[LevelParameters]) {
 
   private def difficultyButton(text: String, diff: Difficulty): Button =
     new Button(text) {
@@ -20,7 +20,7 @@ class SelectDifficultyView(onSelect: (difficulty: String, levels:Vector[LevelPar
         style = ButtonStyles.ButtonMouseEntered
       onMouseExited = _ =>
         style = ButtonStyles.ButtonMouseExited
-      onAction = _ => onSelect(diff.name, levels(diff))
+      onAction = _ => onSelect(diff.name, () => levels(diff))
     }
 
   private val icon = new ImageView(
